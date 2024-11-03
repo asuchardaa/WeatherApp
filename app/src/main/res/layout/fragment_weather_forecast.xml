@@ -1,0 +1,127 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="25dp"
+    android:background="@drawable/gradient_bg">
+
+    <RelativeLayout
+        android:id="@+id/mainContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        android:padding="16dp"
+        android:elevation="4dp"
+        android:clipToPadding="false"
+        android:layout_marginTop="10dp">
+
+        <!-- Název města -->
+        <TextView
+            android:id="@+id/cityName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zocca"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Aktuální počasí -->
+        <TextView
+            android:id="@+id/currentWeather"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Počasí: Lehké deště"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:layout_below="@id/cityName"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Teplota -->
+        <TextView
+            android:id="@+id/currentTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Teplota: 296.76 K"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:layout_below="@id/currentWeather"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Popis počasí -->
+        <TextView
+            android:id="@+id/weatherDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Popis: lehké deště"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:layout_below="@id/currentTemperature"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Vlhkost -->
+        <TextView
+            android:id="@+id/humidity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vlhkost: 69%"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:layout_below="@id/weatherDescription"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Vítr -->
+        <TextView
+            android:id="@+id/windSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vítr: 0.62 m/s"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:layout_below="@id/humidity"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Další počasí -->
+        <TextView
+            android:id="@+id/nextWeather"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Další předpověď:"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#FFEB3B"
+            android:layout_below="@id/windSpeed"
+            android:layout_marginTop="16dp"/>
+
+        <!-- Místo pro další předpovědi -->
+        <TextView
+            android:id="@+id/forecast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:layout_below="@id/nextWeather"
+            android:layout_marginTop="8dp" />
+
+    </RelativeLayout>
+
+    <!-- ProgressBar for loading -->
+    <ProgressBar
+        android:id="@+id/loader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <!-- Error text -->
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nastala chyba při načítání počasí. Zkontrolujte připojení k internetu."
+        android:textSize="18sp"
+        android:textColor="#FF0000"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+</RelativeLayout>
