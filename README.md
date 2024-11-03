@@ -1,1 +1,1 @@
-# CrimeMapApp
+# WeatherApp - PMA Semestral Project
