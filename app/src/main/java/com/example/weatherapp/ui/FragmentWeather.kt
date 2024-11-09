@@ -23,7 +23,7 @@ import java.util.*
 class FragmentWeather : Fragment() {
     var CITY = "Prague"
     var COUNTRY = "CZ"
-    private val API = BuildConfig.API_KEY
+    val API = BuildConfig.API_KEY
 
     private lateinit var weatherDatabase: WeatherDatabase
     private lateinit var loader: ProgressBar
@@ -88,7 +88,8 @@ class FragmentWeather : Fragment() {
 
     private fun fetchData() {
         // Kontrola, zda jsou data uložena v databázi
-        val cachedData = weatherDatabase.getWeatherData(CITY, COUNTRY)
+        WeatherTask().execute()
+        val cachedData = weatherDatabase.getCurrentWeather(CITY, COUNTRY)
         if (cachedData != null) {
             // Pokud jsou data k dispozici, aktualizuju UI
             updateUIWithWeatherData(cachedData)
@@ -118,6 +119,7 @@ class FragmentWeather : Fragment() {
                 val wind = jsonObj.getJSONObject("wind").getString("speed")
                 val pressure = main.getString("pressure")
                 val humidity = main.getString("humidity")
+                val clouds = jsonObj.getJSONObject("clouds").getString("all")
 
                 // Update UI elements with data
                 view?.findViewById<TextView>(R.id.address)?.text = "$CITY, $COUNTRY"
@@ -134,6 +136,7 @@ class FragmentWeather : Fragment() {
                 view?.findViewById<TextView>(R.id.wind)?.text = wind
                 view?.findViewById<TextView>(R.id.pressure)?.text = pressure
                 view?.findViewById<TextView>(R.id.humidity)?.text = humidity
+                view?.findViewById<TextView>(R.id.clouds)?.text = clouds
 
                 mainContainer.visibility = View.VISIBLE
                 loader.visibility = View.GONE
@@ -173,7 +176,7 @@ class FragmentWeather : Fragment() {
 
                 updateUIWithWeatherData(result)
 
-                weatherDatabase.insertOrUpdateWeatherData(CITY, COUNTRY, result)
+                weatherDatabase.insertOrUpdateCurrentWeather(CITY, COUNTRY, result)
             }
         }
     }

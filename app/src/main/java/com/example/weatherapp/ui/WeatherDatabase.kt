@@ -9,53 +9,90 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
 
     companion object {
         private const val DATABASE_NAME = "WeatherData.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
 
-        const val TABLE_NAME = "weather"
+        // Tabulka pro aktuální počasí
+        const val TABLE_CURRENT_WEATHER = "weather"
         const val COLUMN_CITY = "city"
         const val COLUMN_COUNTRY = "country"
         const val COLUMN_DATA = "data"
+
+        // Tabulka pro předpověď počasí
+        const val TABLE_FORECAST_WEATHER = "forecast_weather"
+        const val COLUMN_FORECAST_DATA = "forecast_data"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        val CREATE_TABLE = ("CREATE TABLE $TABLE_NAME (" +
+        // Vytvoření tabulky pro aktuální počasí
+        val CREATE_CURRENT_WEATHER_TABLE = ("CREATE TABLE $TABLE_CURRENT_WEATHER (" +
                 "$COLUMN_CITY TEXT," +
                 "$COLUMN_COUNTRY TEXT," +
                 "$COLUMN_DATA TEXT," +
                 "PRIMARY KEY ($COLUMN_CITY, $COLUMN_COUNTRY))")
-        db.execSQL(CREATE_TABLE)
+        db.execSQL(CREATE_CURRENT_WEATHER_TABLE)
+
+        // Vytvoření tabulky pro předpověď počasí
+        val CREATE_FORECAST_WEATHER_TABLE = ("CREATE TABLE $TABLE_FORECAST_WEATHER (" +
+                "$COLUMN_CITY TEXT," +
+                "$COLUMN_COUNTRY TEXT," +
+                "$COLUMN_FORECAST_DATA TEXT," +
+                "PRIMARY KEY ($COLUMN_CITY, $COLUMN_COUNTRY))")
+        db.execSQL(CREATE_FORECAST_WEATHER_TABLE)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_CURRENT_WEATHER")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_FORECAST_WEATHER")
         onCreate(db)
     }
 
-    // Function to insert or update weather data
-    fun insertOrUpdateWeatherData(city: String, country: String, data: String) {
+    // Funkce pro vložení nebo aktualizaci aktuálního počasí
+    fun insertOrUpdateCurrentWeather(city: String, country: String, data: String) {
         try {
             val db = writableDatabase
-            val sql = "INSERT OR REPLACE INTO $TABLE_NAME ($COLUMN_CITY, $COLUMN_COUNTRY, $COLUMN_DATA) VALUES (?, ?, ?)"
+            val sql = "INSERT OR REPLACE INTO $TABLE_CURRENT_WEATHER ($COLUMN_CITY, $COLUMN_COUNTRY, $COLUMN_DATA) VALUES (?, ?, ?)"
             db.execSQL(sql, arrayOf(city, country, data))
         } catch (e: Exception) {
-            Log.e("DatabaseError", "Error saving data: ${e.message}")
+            Log.e("DatabaseError", "Error saving current weather data: ${e.message}")
         }
     }
 
-
-    // Function to retrieve weather data
-    fun getWeatherData(city: String, country: String): String? {
+    // Funkce pro načtení aktuálního počasí
+    fun getCurrentWeather(city: String, country: String): String? {
         return try {
             val db = readableDatabase
-            val cursor = db.rawQuery("SELECT $COLUMN_DATA FROM $TABLE_NAME WHERE $COLUMN_CITY = ? AND $COLUMN_COUNTRY = ?", arrayOf(city, country))
+            val cursor = db.rawQuery("SELECT $COLUMN_DATA FROM $TABLE_CURRENT_WEATHER WHERE $COLUMN_CITY = ? AND $COLUMN_COUNTRY = ?", arrayOf(city, country))
             cursor.use {
                 if (it.moveToFirst()) return it.getString(it.getColumnIndexOrThrow(COLUMN_DATA))
             }
-            return null
-
+            null
         } catch (e: Exception) {
             null
         }
+    }
 
+    // Funkce pro vložení nebo aktualizaci předpovědi počasí
+    fun insertOrUpdateForecastWeather(city: String, country: String, forecastData: String) {
+        try {
+            val db = writableDatabase
+            val sql = "INSERT OR REPLACE INTO $TABLE_FORECAST_WEATHER ($COLUMN_CITY, $COLUMN_COUNTRY, $COLUMN_FORECAST_DATA) VALUES (?, ?, ?)"
+            db.execSQL(sql, arrayOf(city, country, forecastData))
+        } catch (e: Exception) {
+            Log.e("DatabaseError", "Error saving forecast weather data: ${e.message}")
+        }
+    }
+
+    // Funkce pro načtení předpovědi počasí
+    fun getForecastWeather(city: String, country: String): String? {
+        return try {
+            val db = readableDatabase
+            val cursor = db.rawQuery("SELECT $COLUMN_FORECAST_DATA FROM $TABLE_FORECAST_WEATHER WHERE $COLUMN_CITY = ? AND $COLUMN_COUNTRY = ?", arrayOf(city, country))
+            cursor.use {
+                if (it.moveToFirst()) return it.getString(it.getColumnIndexOrThrow(COLUMN_FORECAST_DATA))
+            }
+            null
+        } catch (e: Exception) {
+            null
+        }
     }
 }
