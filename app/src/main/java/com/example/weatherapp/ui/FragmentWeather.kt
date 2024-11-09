@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui
 
+import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
@@ -30,7 +31,7 @@ class FragmentWeather : Fragment() {
     private lateinit var mainContainer: RelativeLayout
     private lateinit var errorText: TextView
 
-    private val cityCountryMap = hashMapOf(
+    val cityCountryMap = hashMapOf(
         "Prague" to "CZ",
         "Paris" to "FR",
         "Berlin" to "DE",
@@ -56,13 +57,20 @@ class FragmentWeather : Fragment() {
         mainContainer = view.findViewById(R.id.mainContainer)
         errorText = view.findViewById(R.id.errorText)
 
+        val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+        CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
+        COUNTRY = cityCountryMap[CITY] ?: "CZ"
+
         val citySearch = view.findViewById<AutoCompleteTextView>(R.id.citySearch)
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
             cityCountryMap.keys.toList()
         )
+
         citySearch.setAdapter(adapter)
+
+        citySearch.setText(CITY)
 
         citySearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
@@ -74,6 +82,11 @@ class FragmentWeather : Fragment() {
                     if (it.toString() in cityCountryMap) {
                         CITY = it.toString()
                         COUNTRY = cityCountryMap[CITY] ?: "CZ"
+
+                        val editor = sharedPreferences.edit()
+                        editor.putString("selected_city", CITY)
+                        editor.apply()
+
                         fetchData()
                     }
                 }

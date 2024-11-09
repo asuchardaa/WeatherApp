@@ -1,11 +1,12 @@
 package com.example.weatherapp.ui
 
-import android.os.AsyncTask
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -27,8 +28,12 @@ class FragmentForecast : Fragment() {
     private lateinit var weatherDatabase: WeatherDatabase
     private lateinit var loader: ProgressBar
     private lateinit var mainContainer: RelativeLayout
+    private lateinit var addressContainer: LinearLayout
+    private lateinit var address: TextView
     private lateinit var errorText: TextView
+    private lateinit var updatedAt: TextView
     private lateinit var forecastRecyclerView: RecyclerView
+
     private var fragmentWeather = FragmentWeather()
     private var CITY = fragmentWeather.CITY
     private var COUNTRY = fragmentWeather.COUNTRY
@@ -42,15 +47,19 @@ class FragmentForecast : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        arguments?.let {
-            CITY = it.getString("CITY") ?: "Prague"
-            COUNTRY = it.getString("COUNTRY") ?: "CZ"
-        }
+        val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+        CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
+        COUNTRY = fragmentWeather.cityCountryMap[CITY] ?: "CZ"
 
         weatherDatabase = WeatherDatabase(requireContext())
+
         loader = view.findViewById(R.id.loader)
         mainContainer = view.findViewById(R.id.mainContainer)
         errorText = view.findViewById(R.id.errorText)
+        addressContainer = view.findViewById(R.id.addressContainer)
+        address = view.findViewById(R.id.address)
+        updatedAt = view.findViewById(R.id.updated_at)
+
         forecastRecyclerView = view.findViewById(R.id.forecastRecyclerView)
 
         fetchData()
@@ -107,6 +116,10 @@ class FragmentForecast : Fragment() {
             forecastRecyclerView.layoutManager = LinearLayoutManager(context)
             forecastRecyclerView.adapter = ForecastAdapter(forecastList)
 
+            val lastUpdatedDate = SimpleDateFormat("EEE, d MMM yyyy HH:mm", Locale.ENGLISH).format(Date())
+            address.text = "$CITY, $COUNTRY"
+            updatedAt.text = "Last Updated: $lastUpdatedDate"
+
             mainContainer.visibility = View.VISIBLE
             loader.visibility = View.GONE
         } catch (e: Exception) {
@@ -115,7 +128,6 @@ class FragmentForecast : Fragment() {
     }
 
     private fun getWeatherIcon(iconCode: String): Int {
-        // Map icon codes to your drawable resources
         return when (iconCode) {
             "01d" -> R.drawable.ic_sunny
             "02d" -> R.drawable.ic_partly_cloudy
@@ -138,6 +150,6 @@ class FragmentForecast : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        coroutineScope.cancel() // Ukončení coroutines při zničení fragmentu
+        coroutineScope.cancel()
     }
 }
