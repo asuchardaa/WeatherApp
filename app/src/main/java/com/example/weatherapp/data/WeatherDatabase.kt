@@ -9,7 +9,7 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
 
     companion object {
         private const val DATABASE_NAME = "WeatherData.db"
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 5
 
         // Tabulka pro aktuální počasí
         const val TABLE_CURRENT_WEATHER = "weather"
@@ -24,6 +24,8 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         // Tabulka pro oblíbená města
         const val TABLE_FAVORITE_CITIES = "favorite_cities"
         const val COLUMN_FAVORITE_CITY = "favorite_city"
+        const val COLUMN_FAVORITE_COUNTRY = "favorite_country"
+
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -45,7 +47,9 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
 
         // Vytvoření tabulky pro oblíbená města
         val CREATE_FAVORITE_CITIES_TABLE = ("CREATE TABLE $TABLE_FAVORITE_CITIES (" +
-                "$COLUMN_FAVORITE_CITY TEXT PRIMARY KEY)")
+                "$COLUMN_FAVORITE_CITY TEXT, " +
+                "$COLUMN_FAVORITE_COUNTRY TEXT, " +
+                "PRIMARY KEY ($COLUMN_FAVORITE_CITY, $COLUMN_FAVORITE_COUNTRY))")
         db.execSQL(CREATE_FAVORITE_CITIES_TABLE)
     }
 
@@ -111,33 +115,38 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
     // Funkce pro přidání města do oblíbených
     fun insertOrUpdateFavoriteCity(city: String, country: String) {
         val db = writableDatabase
-        val sql = "INSERT OR IGNORE INTO $TABLE_FAVORITE_CITIES ($COLUMN_FAVORITE_CITY) VALUES (?)"
-        db.execSQL(sql, arrayOf(city, country))
+        val sql = "INSERT OR IGNORE INTO $TABLE_FAVORITE_CITIES ($COLUMN_FAVORITE_CITY, $COLUMN_FAVORITE_COUNTRY) VALUES (?, ?)"
+        db.execSQL(sql, arrayOf(city, country))  // Uložíme jak město, tak i zemi
     }
 
+
     // Funkce pro odstranění oblíbeného města
-    fun removeFavoriteCity(city: String) {
+    fun removeFavoriteCity(city: String, country: String) {
         try {
             val db = writableDatabase
-            val sql = "DELETE FROM $TABLE_FAVORITE_CITIES WHERE $COLUMN_FAVORITE_CITY = ?"
-            db.execSQL(sql, arrayOf(city))
+            val sql = "DELETE FROM $TABLE_FAVORITE_CITIES WHERE $COLUMN_FAVORITE_CITY = ? AND $COLUMN_FAVORITE_COUNTRY = ?"
+            db.execSQL(sql, arrayOf(city, country))
         } catch (e: Exception) {
             Log.e("DatabaseError", "Error removing favorite city: ${e.message}")
         }
     }
 
     // Funkce pro načtení oblíbených měst
+    // Funkce pro načtení oblíbených měst
     fun getFavoriteCities(): List<String> {
-        val db = readableDatabase
-        val cursor = db.rawQuery("SELECT $COLUMN_FAVORITE_CITY FROM $TABLE_FAVORITE_CITIES", null)
         val favoriteCities = mutableListOf<String>()
-        cursor.use {
-            while (it.moveToNext()) {
-                favoriteCities.add(it.getString(it.getColumnIndexOrThrow(COLUMN_FAVORITE_CITY)))
-            }
+        val cursor = readableDatabase.rawQuery("SELECT $COLUMN_FAVORITE_CITY, $COLUMN_FAVORITE_COUNTRY FROM $TABLE_FAVORITE_CITIES", null)
+        while (cursor.moveToNext()) {
+            val city = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FAVORITE_CITY))
+            val country = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FAVORITE_COUNTRY))
+            favoriteCities.add("$city, $country")
         }
+        cursor.close()
         return favoriteCities
     }
+
+
+
 
 
 }

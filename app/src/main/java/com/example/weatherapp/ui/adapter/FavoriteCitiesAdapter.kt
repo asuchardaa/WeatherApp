@@ -7,13 +7,15 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
 
 class FavoriteCitiesAdapter(
     private val context: Context,
     private val favoriteCities: MutableList<String>,
-    private val onCityDeleted: (String) -> Unit
+    private val onCityDeleted: (String) -> Unit,
 ) : BaseAdapter() {
 
     private val weatherDatabase: WeatherDatabase = WeatherDatabase(context)
@@ -35,11 +37,12 @@ class FavoriteCitiesAdapter(
 
         deleteIcon.setOnClickListener {
             // Odstraňte město z databáze a seznamu
-            weatherDatabase.removeFavoriteCity(cityName)
+            weatherDatabase.removeFavoriteCity(cityName, favoriteCities[position].substringAfter(", "))
             favoriteCities.removeAt(position)
             notifyDataSetChanged()
 
-            // Callback pro odstranění města
+            Toast.makeText(context, "$cityName bylo smazáno z oblíbených", Toast.LENGTH_SHORT).show()
+
             onCityDeleted(cityName)
         }
 

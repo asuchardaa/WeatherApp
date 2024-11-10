@@ -38,7 +38,12 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.mainContainer, FragmentWeather())
                 .commit()
+
+            bottomNav.selectedItemId = R.id.nav_weather
+
         }
+
+
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -47,8 +52,8 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener {
         transaction.commit()
     }
 
-    override fun onCitySelected(city: String) {
+    override fun onCitySelected(city: String, country: String) {
         val fragmentWeather = supportFragmentManager.findFragmentById(R.id.mainContainer) as? FragmentWeather
-        fragmentWeather?.onCitySelected(city)
+        fragmentWeather?.onCitySelected(city, country)
     }
 }

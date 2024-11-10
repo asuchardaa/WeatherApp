@@ -40,10 +40,13 @@ class FavoriteCitiesFragment : DialogFragment() {
         favoriteCitiesList.adapter = favoriteCitiesAdapter
 
         favoriteCitiesList.setOnItemClickListener { _, _, position, _ ->
-            val selectedCity = favoriteCities[position]
-            listener?.onCitySelected(selectedCity)
-            dismiss() // Zavře dialog po výběru města
+            val selectedCityAndCountry = favoriteCities[position]
+            val city = selectedCityAndCountry.substringBefore(",")
+            val country = selectedCityAndCountry.substringAfter(", ")
+            listener?.onCitySelected(city, country)
+            dismiss()
         }
+
 
         return view
     }

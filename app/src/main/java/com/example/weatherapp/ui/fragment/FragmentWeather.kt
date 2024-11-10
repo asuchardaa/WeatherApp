@@ -58,8 +58,10 @@ class FragmentWeather : Fragment() {
         citySearch = view.findViewById(R.id.citySearch)
 
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+        sharedPreferences.edit().remove("city").apply()
+        sharedPreferences.edit().remove("country").apply()
         CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
-
+        COUNTRY = sharedPreferences.getString("selected_country", "CZ") ?: "CZ"
         citySearch.setText(CITY)
 
         // logika pro změnu města
@@ -80,8 +82,8 @@ class FragmentWeather : Fragment() {
 
         citySearch.setOnItemClickListener { parent, _, position, _ ->
             val selectedCity = parent.getItemAtPosition(position) as String
-            CITY = selectedCity.substringBefore(",") // Získání názvu města
-            COUNTRY = selectedCity.substringAfter(", ").take(2) // Získání kódu země (dvě písmena)
+            CITY = selectedCity.substringBefore(",") // město
+            COUNTRY = selectedCity.substringAfter(", ").take(2) // země (2 chary)
 
             // Uložení vybraného města do SharedPreferences
             val editor = sharedPreferences.edit()
@@ -89,7 +91,6 @@ class FragmentWeather : Fragment() {
             editor.putString("selected_country", COUNTRY)
             editor.apply()
 
-            // Načtení dat pro vybrané město
             fetchData()
             citySearch.clearFocus()
         }
@@ -104,7 +105,7 @@ class FragmentWeather : Fragment() {
                     if (event.x >= drawableStartX) {
                         // Přidání města do oblíbených
                         if (CITY.isNotEmpty()) {
-                            weatherDatabase.insertOrUpdateFavoriteCity(CITY)
+                            weatherDatabase.insertOrUpdateFavoriteCity(CITY, COUNTRY)
                             Toast.makeText(requireContext(), "$CITY přidáno do oblíbených", Toast.LENGTH_SHORT).show()
                         }
                         return@setOnTouchListener true
@@ -128,19 +129,20 @@ class FragmentWeather : Fragment() {
         fetchData()
     }
 
-    fun onCitySelected(city: String) {
+    fun onCitySelected(city: String, country: String) {
         CITY = city
-        // Pokud je třeba aktualizovat zemi na základě názvu města, lze zde provést příslušnou logiku.
+        COUNTRY = country
 
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString("selected_city", CITY)
+        editor.putString("selected_country", COUNTRY)
         editor.apply()
 
         fetchData()
-
         citySearch.setText("")
     }
+
 
     private fun fetchCitySuggestions(query: String) {
         AsyncTask.execute {
@@ -150,7 +152,6 @@ class FragmentWeather : Fragment() {
                 val response = URL(apiUrl).readText()
                 val cities = parseCitySuggestions(response)
                 requireActivity().runOnUiThread {
-                    // Nastavení adapteru s výsledky
                     val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cities)
                     citySearch.setAdapter(adapter)
                     adapter.notifyDataSetChanged()
@@ -169,7 +170,7 @@ class FragmentWeather : Fragment() {
                 val cityObject = jsonArray.getJSONObject(i)
                 val name = cityObject.getString("name")
                 val country = cityObject.getString("country")
-                cities.add("$name, $country") // Přidání města ve formátu "Město, Země"
+                cities.add("$name, $country")
             }
         } catch (e: Exception) {
             Log.e("FragmentWeather", "Error parsing city suggestions", e)
@@ -177,16 +178,12 @@ class FragmentWeather : Fragment() {
         return cities
     }
 
-
     private fun fetchData() {
-        // Kontrola, zda jsou data uložena v databázi
         WeatherTask().execute()
         val cachedData = weatherDatabase.getCurrentWeather(CITY, COUNTRY)
         if (cachedData != null) {
-            // Pokud jsou data k dispozici, aktualizuju UI
             updateUIWithWeatherData(cachedData)
         } else {
-            // Jinak se volá API
             WeatherTask().execute()
         }
     }

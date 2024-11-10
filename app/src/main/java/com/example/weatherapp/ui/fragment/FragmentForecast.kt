@@ -52,7 +52,7 @@ class FragmentForecast : Fragment() {
 
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
-        //COUNTRY = fragmentWeather.cityCountryMap[CITY] ?: "CZ"
+        COUNTRY = sharedPreferences.getString("selected_country", "CZ") ?: "CZ"
 
         weatherDatabase = WeatherDatabase(requireContext())
 
