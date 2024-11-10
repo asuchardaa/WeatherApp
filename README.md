@@ -4,7 +4,7 @@ WeatherApp - PMA Semestral Project ☁️🌦️
 Popis 📜
 --------
 
-Tato aplikace poskytuje aktuální předpověď počasí a předpověď na 5 dní dopředu. Uživatelé mohou snadno vyhledávat města, zobrazovat historická data a využívat filtrování pro dostupná města prostřednictvím API. Aplikace podporuje světlý a tmavý režim a je navržena jako multijazyčná aplikace. 🌍
+Tato aplikace poskytuje aktuální předpověď počasí a předpověď na 5 dní dopředu. Uživatelé mohou snadno vyhledávat města, zobrazovat předpovědi na budoucí dny a využívat filtrování pro dostupná města prostřednictvím API. Aplikace podporuje světlý a tmavý režim a je navržena jako multijazyčná aplikace. 🌍
 
 Funkce 🚀
 ---------
@@ -13,14 +13,15 @@ Funkce 🚀
 
 *   **Předpověď počasí na 5 dní dopředu:** Umožňuje uživatelům plánovat na základě budoucího počasí. 📅
 
-*   **Vyhledávání měst:** Rychlé a snadné vyhledání jakéhokoli města. 🔍
+*   **Vyhledávání měst:** Rychlé a snadné vyhledání dostupných měst z OpenWeatherMap API. 🔍
 
 *   **JSON Parsing:** Efektivní zpracování dat z API pro přesné zobrazení informací. 📊
 
 *   **Ukládání do databáze:** Historie a budoucí předpovědi jsou uloženy pro snadný přístup. 💾
 
-*   **Vyhledávací filtr:** Umožňuje uživatelům filtrovat dostupná města z API. 🗺️
+*   **Oblíbená města:** Uživatelé mohou ukládat a načítat oblíbená města pro rychlý přístup. ⭐
 
+-- TODO --
 *   **Světlý a tmavý režim:** Uživatelé si mohou vybrat preferovaný vizuální styl. 🌞🌙
 
 *   **Multijazyčná aplikace:** Možnost přepínání mezi různými jazyky pro širší přístupnost. 🌐
@@ -37,6 +38,11 @@ Technologie 🛠️
 
 *   **OpenWeatherMap API**: API pro získávání aktuálních a budoucích předpovědí počasí. ☁️
 
+*   **Personal Weather Station API**: Domácí API pro získávání aktuáních dat o počasí z meteostanice na zahradě. 🌡️ 
+    
+Fotky 📸
+--------------
+![Dashboard](app/src/main/res/drawable/dashboard.png)
 
 Jak spustit ⚙️
 --------------
