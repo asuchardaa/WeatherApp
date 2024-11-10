@@ -19,8 +19,14 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val apiKey: String = project.findProperty("WEATHER_API_KEY") as String
-        buildConfigField("String", "API_KEY", "\"$apiKey\"")
+        val weatherApiKey: String = project.findProperty("WEATHER_API_KEY") as String
+        buildConfigField("String", "API_KEY", "\"$weatherApiKey\"")
+
+        val homeApiKey : String = project.findProperty("WEATHER_HOME_API_KEY") as String
+        buildConfigField("String", "HOME_API", "\"$homeApiKey\"")
+
+        val stationId : String = project.findProperty("STATION_ID") as String
+        buildConfigField("String", "STATION_ID", "\"$stationId\"")
 
     }
 
@@ -44,7 +50,7 @@ android {
 
 dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-
+    implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.fragment:fragment:1.3.6")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -54,6 +60,7 @@ dependencies {
 
     implementation(libs.material)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

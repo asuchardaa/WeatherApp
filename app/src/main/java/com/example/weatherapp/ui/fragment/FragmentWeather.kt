@@ -95,8 +95,8 @@ class FragmentWeather : Fragment() {
             citySearch.clearFocus()
         }
 
-
-        // Nastavení klikací logiky na hvězdičku (drawableEnd) v AutoCompleteTextView
+        // diky gpt, drawableEnd bych nikdy nezvladnul :D
+        // pocitani souradnic, husty
         citySearch.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 val drawableEnd = citySearch.compoundDrawablesRelative[2]
@@ -115,7 +115,6 @@ class FragmentWeather : Fragment() {
             false
         }
 
-        // Kliknutí na srdíčko pro zobrazení fragmentu s oblíbenými městy
         favoriteHeartIcon.setOnClickListener {
             val favoriteCities = weatherDatabase.getFavoriteCities()
 
@@ -125,6 +124,18 @@ class FragmentWeather : Fragment() {
                 Toast.makeText(requireContext(), "Nemáte žádná oblíbená města", Toast.LENGTH_SHORT).show()
             }
         }
+
+        val homeIcon = view.findViewById<ImageView>(R.id.homeIcon)
+        homeIcon.setOnClickListener {
+            val homeFragmentDialog = HomeFragmentDialog()
+
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.mainContainer, homeFragmentDialog)
+                .addToBackStack(null)
+                .commit()
+        }
+
+
 
         fetchData()
     }

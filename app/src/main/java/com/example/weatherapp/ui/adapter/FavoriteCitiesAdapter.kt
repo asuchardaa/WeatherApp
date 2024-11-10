@@ -36,7 +36,6 @@ class FavoriteCitiesAdapter(
         cityNameTextView.text = cityName
 
         deleteIcon.setOnClickListener {
-            // Odstraňte město z databáze a seznamu
             weatherDatabase.removeFavoriteCity(cityName, favoriteCities[position].substringAfter(", "))
             favoriteCities.removeAt(position)
             notifyDataSetChanged()
