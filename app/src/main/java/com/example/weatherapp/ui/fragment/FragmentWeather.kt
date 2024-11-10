@@ -22,12 +22,13 @@ import androidx.fragment.app.Fragment
 import com.example.weatherapp.BuildConfig
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FragmentWeather : Fragment()  {
+class FragmentWeather : Fragment() {
     var CITY = "Prague"
     var COUNTRY = "CZ"
     val API = BuildConfig.API_KEY
@@ -37,22 +38,10 @@ class FragmentWeather : Fragment()  {
     private lateinit var mainContainer: RelativeLayout
     private lateinit var errorText: TextView
     private lateinit var favoriteHeartIcon: ImageView
-    private lateinit var citySearch : AutoCompleteTextView
-
-    val cityCountryMap = hashMapOf(
-        "Prague" to "CZ",
-        "Paris" to "FR",
-        "Berlin" to "DE",
-        "Bratislava" to "SK",
-        "London" to "GB",
-        "Pardubice" to "CZ",
-        "Liberec" to "CZ",
-        "Nová Paka" to "CZ"
-    )
+    private lateinit var citySearch: AutoCompleteTextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?
-    ): View? {
+                              savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_weather, container, false)
     }
 
@@ -70,45 +59,44 @@ class FragmentWeather : Fragment()  {
 
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
-        COUNTRY = cityCountryMap[CITY] ?: "CZ"
 
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            cityCountryMap.keys.toList()
-        )
-
-        citySearch.setAdapter(adapter)
         citySearch.setText(CITY)
 
         // logika pro změnu města
         citySearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 s?.let {
-                    if (it.toString() in cityCountryMap) {
-
-                        CITY = it.toString()
-                        COUNTRY = cityCountryMap[CITY] ?: "CZ"
-                        Log.d("FragmentWeather", "City selected: $CITY, $COUNTRY")
-                        val editor = sharedPreferences.edit()
-                        editor.putString("selected_city", CITY)
-                        editor.apply()
-
-                        fetchData()
-
-                        citySearch.setText("")
+                    if (it.length > 2) {
+                        fetchCitySuggestions(it.toString())
+                        //citySearch.setText("")
                     }
                 }
             }
         })
 
+        citySearch.setOnItemClickListener { parent, _, position, _ ->
+            val selectedCity = parent.getItemAtPosition(position) as String
+            CITY = selectedCity.substringBefore(",") // Získání názvu města
+            COUNTRY = selectedCity.substringAfter(", ").take(2) // Získání kódu země (dvě písmena)
+
+            // Uložení vybraného města do SharedPreferences
+            val editor = sharedPreferences.edit()
+            editor.putString("selected_city", CITY)
+            editor.putString("selected_country", COUNTRY)
+            editor.apply()
+
+            // Načtení dat pro vybrané město
+            fetchData()
+            citySearch.clearFocus()
+        }
+
+
         // Nastavení klikací logiky na hvězdičku (drawableEnd) v AutoCompleteTextView
-        citySearch.setOnTouchListener { v, event ->
+        citySearch.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 val drawableEnd = citySearch.compoundDrawablesRelative[2]
                 if (drawableEnd != null) {
@@ -140,24 +128,55 @@ class FragmentWeather : Fragment()  {
         fetchData()
     }
 
-    // Metoda pro přepnutí města
     fun onCitySelected(city: String) {
-        Log.d("FragmentWeather", "City selected: $city")
-
         CITY = city
-        COUNTRY = cityCountryMap[CITY] ?: "CZ" // Nastavení země podle vybraného města
+        // Pokud je třeba aktualizovat zemi na základě názvu města, lze zde provést příslušnou logiku.
 
-        // Uložení vybraného města do SharedPreferences
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString("selected_city", CITY)
         editor.apply()
 
-        // Načtení dat pro nové město
         fetchData()
 
         citySearch.setText("")
     }
+
+    private fun fetchCitySuggestions(query: String) {
+        AsyncTask.execute {
+            // URL API s požadavkem pouze na název města a s limitem 5 výsledků
+            val apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=$query&limit=5&appid=$API"
+            try {
+                val response = URL(apiUrl).readText()
+                val cities = parseCitySuggestions(response)
+                requireActivity().runOnUiThread {
+                    // Nastavení adapteru s výsledky
+                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cities)
+                    citySearch.setAdapter(adapter)
+                    adapter.notifyDataSetChanged()
+                }
+            } catch (e: Exception) {
+                Log.e("FragmentWeather", "Error fetching city suggestions", e)
+            }
+        }
+    }
+
+    private fun parseCitySuggestions(response: String): List<String> {
+        val cities = mutableListOf<String>()
+        try {
+            val jsonArray = JSONArray(response)
+            for (i in 0 until jsonArray.length()) {
+                val cityObject = jsonArray.getJSONObject(i)
+                val name = cityObject.getString("name")
+                val country = cityObject.getString("country")
+                cities.add("$name, $country") // Přidání města ve formátu "Město, Země"
+            }
+        } catch (e: Exception) {
+            Log.e("FragmentWeather", "Error parsing city suggestions", e)
+        }
+        return cities
+    }
+
 
     private fun fetchData() {
         // Kontrola, zda jsou data uložena v databázi
@@ -223,12 +242,6 @@ class FragmentWeather : Fragment()  {
         }
     }
 
-    /*private fun updateFavoriteIcon() {
-        val isFavorite = weatherDatabase.isFavoriteCity(CITY)
-        val drawableRes = if (isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart_empty
-        favoriteHeartIcon.setImageResource(drawableRes)
-    }*/
-
     @SuppressLint("StaticFieldLeak")
     inner class WeatherTask() : AsyncTask<String, Void, String>() {
         override fun onPreExecute() {
@@ -252,7 +265,6 @@ class FragmentWeather : Fragment()  {
         }
 
         override fun onPostExecute(result: String?) {
-            super.onPostExecute(result)
             if (result != null) {
                 weatherDatabase.insertOrUpdateCurrentWeather(CITY, COUNTRY, result)
                 updateUIWithWeatherData(result)

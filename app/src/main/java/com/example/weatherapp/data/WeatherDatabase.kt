@@ -109,10 +109,10 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
     }
 
     // Funkce pro přidání města do oblíbených
-    fun insertOrUpdateFavoriteCity(city: String) {
+    fun insertOrUpdateFavoriteCity(city: String, country: String) {
         val db = writableDatabase
         val sql = "INSERT OR IGNORE INTO $TABLE_FAVORITE_CITIES ($COLUMN_FAVORITE_CITY) VALUES (?)"
-        db.execSQL(sql, arrayOf(city))
+        db.execSQL(sql, arrayOf(city, country))
     }
 
     // Funkce pro odstranění oblíbeného města
