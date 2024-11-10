@@ -1,18 +1,23 @@
 package com.example.weatherapp.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.BuildConfig
 import com.example.weatherapp.R
@@ -21,7 +26,7 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FragmentWeather : Fragment() {
+class FragmentWeather : Fragment()  {
     var CITY = "Prague"
     var COUNTRY = "CZ"
     val API = BuildConfig.API_KEY
@@ -30,6 +35,8 @@ class FragmentWeather : Fragment() {
     private lateinit var loader: ProgressBar
     private lateinit var mainContainer: RelativeLayout
     private lateinit var errorText: TextView
+    private lateinit var favoriteHeartIcon: ImageView
+    private lateinit var citySearch : AutoCompleteTextView
 
     val cityCountryMap = hashMapOf(
         "Prague" to "CZ",
@@ -48,6 +55,7 @@ class FragmentWeather : Fragment() {
         return inflater.inflate(R.layout.fragment_weather, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -56,12 +64,13 @@ class FragmentWeather : Fragment() {
         loader = view.findViewById(R.id.loader)
         mainContainer = view.findViewById(R.id.mainContainer)
         errorText = view.findViewById(R.id.errorText)
+        favoriteHeartIcon = view.findViewById(R.id.favoriteIcon)
+        citySearch = view.findViewById(R.id.citySearch)
 
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
         COUNTRY = cityCountryMap[CITY] ?: "CZ"
 
-        val citySearch = view.findViewById<AutoCompleteTextView>(R.id.citySearch)
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
@@ -69,35 +78,85 @@ class FragmentWeather : Fragment() {
         )
 
         citySearch.setAdapter(adapter)
-
         citySearch.setText(CITY)
 
+        // logika pro změnu města
         citySearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 s?.let {
                     if (it.toString() in cityCountryMap) {
+
                         CITY = it.toString()
                         COUNTRY = cityCountryMap[CITY] ?: "CZ"
-
+                        Log.d("FragmentWeather", "City selected: $CITY, $COUNTRY")
                         val editor = sharedPreferences.edit()
                         editor.putString("selected_city", CITY)
                         editor.apply()
 
                         fetchData()
+
+                        citySearch.setText("")
                     }
                 }
             }
         })
 
+        // Nastavení klikací logiky na hvězdičku (drawableEnd) v AutoCompleteTextView
+        citySearch.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawableEnd = citySearch.compoundDrawablesRelative[2]
+                if (drawableEnd != null) {
+                    val drawableStartX = citySearch.width - citySearch.paddingEnd - drawableEnd.intrinsicWidth
+                    if (event.x >= drawableStartX) {
+                        // Přidání města do oblíbených
+                        if (CITY.isNotEmpty()) {
+                            weatherDatabase.insertOrUpdateFavoriteCity(CITY)
+                            Toast.makeText(requireContext(), "$CITY přidáno do oblíbených", Toast.LENGTH_SHORT).show()
+                        }
+                        return@setOnTouchListener true
+                    }
+                }
+            }
+            false
+        }
 
+        // Kliknutí na srdíčko pro zobrazení fragmentu s oblíbenými městy
+        favoriteHeartIcon.setOnClickListener {
+            val favoriteCities = weatherDatabase.getFavoriteCities()
+
+            val favoriteFragment = FavoriteCitiesFragment.newInstance(favoriteCities)
+            favoriteFragment.show(requireActivity().supportFragmentManager, "FavoriteCitiesFragment")
+            if (favoriteCities.isEmpty()) {
+                Toast.makeText(requireContext(), "Nemáte žádná oblíbená města", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         fetchData()
     }
 
+    // Metoda pro přepnutí města
+    fun onCitySelected(city: String) {
+        Log.d("FragmentWeather", "City selected: $city")
+
+        CITY = city
+        COUNTRY = cityCountryMap[CITY] ?: "CZ" // Nastavení země podle vybraného města
+
+        // Uložení vybraného města do SharedPreferences
+        val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("selected_city", CITY)
+        editor.apply()
+
+        // Načtení dat pro nové město
+        fetchData()
+
+        citySearch.setText("")
+    }
 
     private fun fetchData() {
         // Kontrola, zda jsou data uložena v databázi
@@ -163,7 +222,14 @@ class FragmentWeather : Fragment() {
         }
     }
 
-    inner class WeatherTask : AsyncTask<String, Void, String>() {
+    /*private fun updateFavoriteIcon() {
+        val isFavorite = weatherDatabase.isFavoriteCity(CITY)
+        val drawableRes = if (isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart_empty
+        favoriteHeartIcon.setImageResource(drawableRes)
+    }*/
+
+    @SuppressLint("StaticFieldLeak")
+    inner class WeatherTask() : AsyncTask<String, Void, String>() {
         override fun onPreExecute() {
             super.onPreExecute()
             loader.visibility = View.VISIBLE
@@ -185,11 +251,13 @@ class FragmentWeather : Fragment() {
         }
 
         override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
             if (result != null) {
-
-                updateUIWithWeatherData(result)
-
                 weatherDatabase.insertOrUpdateCurrentWeather(CITY, COUNTRY, result)
+                updateUIWithWeatherData(result)
+            } else {
+                errorText.visibility = View.VISIBLE
+                loader.visibility = View.GONE
             }
         }
     }

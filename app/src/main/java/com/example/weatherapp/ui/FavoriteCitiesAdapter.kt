@@ -1,0 +1,47 @@
+package com.example.weatherapp.ui
+
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.TextView
+import com.example.weatherapp.R
+
+class FavoriteCitiesAdapter(
+    private val context: Context,
+    private val favoriteCities: MutableList<String>,
+    private val onCityDeleted: (String) -> Unit
+) : BaseAdapter() {
+
+    private val weatherDatabase: WeatherDatabase = WeatherDatabase(context)
+
+    override fun getCount(): Int = favoriteCities.size
+
+    override fun getItem(position: Int): String = favoriteCities[position]
+
+    override fun getItemId(position: Int): Long = position.toLong()
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.favorite_city_item, parent, false)
+
+        val cityNameTextView = view.findViewById<TextView>(R.id.city_name)
+        val deleteIcon = view.findViewById<ImageView>(R.id.delete_icon)
+
+        val cityName = getItem(position)
+        cityNameTextView.text = cityName
+
+        deleteIcon.setOnClickListener {
+            // Odstraňte město z databáze a seznamu
+            weatherDatabase.removeFavoriteCity(cityName)
+            favoriteCities.removeAt(position)
+            notifyDataSetChanged()
+
+            // Callback pro odstranění města
+            onCityDeleted(cityName)
+        }
+
+        return view
+    }
+}

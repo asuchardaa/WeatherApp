@@ -6,6 +6,16 @@
     android:padding="25dp"
     android:background="@drawable/gradient_bg">
 
+    <ImageView
+        android:id="@+id/favoriteIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_heart"
+        app:tint="@color/white"
+        android:contentDescription="Favorites" />
+
     <RelativeLayout
         android:id="@+id/mainContainer"
         android:layout_width="match_parent"
@@ -16,13 +26,14 @@
             android:id="@+id/citySearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="130dp"
+            android:layout_marginTop="100dp"
             android:background="@drawable/search_box_background"
             android:completionThreshold="2"
             android:hint="Enter city"
             android:inputType="text"
             android:padding="10dp"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:drawableEnd="@drawable/ic_star" />
 
         <LinearLayout
             android:id="@+id/addressContainer"

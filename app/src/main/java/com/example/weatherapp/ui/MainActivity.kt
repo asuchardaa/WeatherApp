@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 import com.example.weatherapp.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnCitySelectedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,5 +42,10 @@ class MainActivity : AppCompatActivity() {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.mainContainer, fragment)
         transaction.commit()
+    }
+
+    override fun onCitySelected(city: String) {
+        val fragmentWeather = supportFragmentManager.findFragmentById(R.id.mainContainer) as? FragmentWeather
+        fragmentWeather?.onCitySelected(city)
     }
 }
