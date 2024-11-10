@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui
+package com.example.weatherapp.ui.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,6 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.weatherapp.R
+import com.example.weatherapp.data.WeatherDatabase
 
 class FavoriteCitiesAdapter(
     private val context: Context,

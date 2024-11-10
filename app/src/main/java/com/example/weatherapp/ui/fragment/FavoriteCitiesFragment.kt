@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui
+package com.example.weatherapp.ui.fragment
 
 import android.content.Context
 import android.os.Bundle
@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.ListView
 import androidx.fragment.app.DialogFragment
 import com.example.weatherapp.R
+import com.example.weatherapp.ui.adapter.FavoriteCitiesAdapter
+import com.example.weatherapp.listeners.OnCitySelectedListener
 
 class FavoriteCitiesFragment : DialogFragment() {
 

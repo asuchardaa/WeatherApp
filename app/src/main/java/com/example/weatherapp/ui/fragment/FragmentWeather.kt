@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui
+package com.example.weatherapp.ui.fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -21,6 +21,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.BuildConfig
 import com.example.weatherapp.R
+import com.example.weatherapp.data.WeatherDatabase
 import org.json.JSONObject
 import java.net.URL
 import java.text.SimpleDateFormat

@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui
+package com.example.weatherapp.data
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -98,7 +98,9 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
             val db = readableDatabase
             val cursor = db.rawQuery("SELECT $COLUMN_FORECAST_DATA FROM $TABLE_FORECAST_WEATHER WHERE $COLUMN_CITY = ? AND $COLUMN_COUNTRY = ?", arrayOf(city, country))
             cursor.use {
-                if (it.moveToFirst()) return it.getString(it.getColumnIndexOrThrow(COLUMN_FORECAST_DATA))
+                if (it.moveToFirst()) return it.getString(it.getColumnIndexOrThrow(
+                    COLUMN_FORECAST_DATA
+                ))
             }
             null
         } catch (e: Exception) {

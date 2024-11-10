@@ -1,9 +1,12 @@
-package com.example.weatherapp.ui
+package com.example.weatherapp
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.weatherapp.R
+import com.example.weatherapp.listeners.OnCitySelectedListener
+import com.example.weatherapp.ui.fragment.FragmentForecast
+import com.example.weatherapp.ui.fragment.FragmentWeather
+import com.example.weatherapp.ui.fragment.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity(), OnCitySelectedListener {
