@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:background="@drawable/gradient_bg"
+    android:background="@drawable/gradient_fav_cities_bg"
     android:elevation="4dp">
 
     <TextView

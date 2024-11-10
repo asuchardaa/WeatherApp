@@ -31,8 +31,8 @@ class FavoriteCitiesFragment : DialogFragment() {
 
         val favoriteCitiesList = view.findViewById<ListView>(R.id.favoriteCitiesListView)
         favoriteCitiesAdapter = FavoriteCitiesAdapter(requireContext(), favoriteCities) { deletedCity ->
-            // Zde můžete implementovat další akce po smazání města
-            // Např. aktualizovat hlavní fragment nebo zobrazit zprávu
+            favoriteCities.remove(deletedCity)
+            favoriteCitiesAdapter.notifyDataSetChanged()
         }
 
         favoriteCitiesList.adapter = favoriteCitiesAdapter
