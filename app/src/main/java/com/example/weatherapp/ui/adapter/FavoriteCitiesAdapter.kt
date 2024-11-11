@@ -1,6 +1,7 @@
 package com.example.weatherapp.ui.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,15 +37,19 @@ class FavoriteCitiesAdapter(
         cityNameTextView.text = cityName
 
         deleteIcon.setOnClickListener {
-            weatherDatabase.removeFavoriteCity(cityName, favoriteCities[position].substringAfter(", "))
+            val cityAndCountry = favoriteCities[position]
+            val city = cityAndCountry.substringBefore(", ").trim()
+            val country = cityAndCountry.substringAfter(", ").trim()
+
+            weatherDatabase.removeFavoriteCity(city, country)
             favoriteCities.removeAt(position)
             notifyDataSetChanged()
 
-            Toast.makeText(context, "$cityName bylo smazáno z oblíbených", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "$city bylo smazáno z oblíbených", Toast.LENGTH_SHORT).show()
+            Log.d("FavoriteCitiesAdapter", "City $city, $country deleted")
 
-            onCityDeleted(cityName)
+            onCityDeleted(city)
         }
-
         return view
     }
 }

@@ -116,9 +116,9 @@ class FragmentWeather : Fragment() {
         }
 
         favoriteHeartIcon.setOnClickListener {
-            val favoriteCities = weatherDatabase.getFavoriteCities()
+            val favoriteCities = weatherDatabase.getAllFavoriteCities()
 
-            val favoriteFragment = FavoriteCitiesFragment.newInstance(favoriteCities)
+            val favoriteFragment = FavoriteCitiesFragment.newInstance()
             favoriteFragment.show(requireActivity().supportFragmentManager, "FavoriteCitiesFragment")
             if (favoriteCities.isEmpty()) {
                 Toast.makeText(requireContext(), "Nemáte žádná oblíbená města", Toast.LENGTH_SHORT).show()

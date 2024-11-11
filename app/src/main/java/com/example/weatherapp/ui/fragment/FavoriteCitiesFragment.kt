@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ListView
 import androidx.fragment.app.DialogFragment
 import com.example.weatherapp.R
+import com.example.weatherapp.data.WeatherDatabase
 import com.example.weatherapp.ui.adapter.FavoriteCitiesAdapter
 import com.example.weatherapp.listeners.OnCitySelectedListener
 
@@ -16,6 +17,7 @@ class FavoriteCitiesFragment : DialogFragment() {
     private var listener: OnCitySelectedListener? = null
     private lateinit var favoriteCitiesAdapter: FavoriteCitiesAdapter
     private lateinit var favoriteCities: MutableList<String>
+    private lateinit var weatherDatabase: WeatherDatabase
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -29,7 +31,9 @@ class FavoriteCitiesFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_favorite_cities, container, false)
 
-        favoriteCities = arguments?.getStringArrayList(ARG_FAVORITE_CITIES)?.toMutableList() ?: mutableListOf()
+        // Inicializace databáze a načtení oblíbených měst
+        weatherDatabase = WeatherDatabase(requireContext())
+        favoriteCities = weatherDatabase.getAllFavoriteCities().toMutableList()
 
         val favoriteCitiesList = view.findViewById<ListView>(R.id.favoriteCitiesListView)
         favoriteCitiesAdapter = FavoriteCitiesAdapter(requireContext(), favoriteCities) { deletedCity ->
@@ -47,19 +51,12 @@ class FavoriteCitiesFragment : DialogFragment() {
             dismiss()
         }
 
-
         return view
     }
 
     companion object {
-        private const val ARG_FAVORITE_CITIES = "favorite_cities"
-
-        fun newInstance(favoriteCities: List<String>): FavoriteCitiesFragment {
-            val fragment = FavoriteCitiesFragment()
-            val args = Bundle()
-            args.putStringArrayList(ARG_FAVORITE_CITIES, ArrayList(favoriteCities))
-            fragment.arguments = args
-            return fragment
+        fun newInstance(): FavoriteCitiesFragment {
+            return FavoriteCitiesFragment()
         }
     }
 

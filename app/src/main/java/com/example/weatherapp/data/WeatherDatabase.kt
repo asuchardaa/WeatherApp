@@ -116,37 +116,49 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
     fun insertOrUpdateFavoriteCity(city: String, country: String) {
         val db = writableDatabase
         val sql = "INSERT OR IGNORE INTO $TABLE_FAVORITE_CITIES ($COLUMN_FAVORITE_CITY, $COLUMN_FAVORITE_COUNTRY) VALUES (?, ?)"
-        db.execSQL(sql, arrayOf(city, country))  // Uložíme jak město, tak i zemi
+        db.execSQL(sql, arrayOf(city, country))
     }
-
 
     // Funkce pro odstranění oblíbeného města
     fun removeFavoriteCity(city: String, country: String) {
+        val db = writableDatabase
+        db.beginTransaction()
         try {
-            val db = writableDatabase
+            Log.d("DatabaseDebug", "Attempting to delete city: $city, country: $country") // Ladicí výpis
             val sql = "DELETE FROM $TABLE_FAVORITE_CITIES WHERE $COLUMN_FAVORITE_CITY = ? AND $COLUMN_FAVORITE_COUNTRY = ?"
-            db.execSQL(sql, arrayOf(city, country))
+            val statement = db.compileStatement(sql)
+            statement.bindString(1, city.trim())
+            statement.bindString(2, country.trim())
+
+            val affectedRows = statement.executeUpdateDelete()
+            if (affectedRows > 0) {
+                Log.d("DatabaseSuccess", "City $city was removed from favorites")
+                db.setTransactionSuccessful()
+            } else {
+                Log.d("DatabaseError", "No rows deleted for city $city")
+            }
         } catch (e: Exception) {
             Log.e("DatabaseError", "Error removing favorite city: ${e.message}")
+        } finally {
+            db.endTransaction()
+            db.close()
         }
     }
 
     // Funkce pro načtení oblíbených měst
-    // Funkce pro načtení oblíbených měst
-    fun getFavoriteCities(): List<String> {
+    fun getAllFavoriteCities(): List<String> {
+        val db = readableDatabase
         val favoriteCities = mutableListOf<String>()
-        val cursor = readableDatabase.rawQuery("SELECT $COLUMN_FAVORITE_CITY, $COLUMN_FAVORITE_COUNTRY FROM $TABLE_FAVORITE_CITIES", null)
+        val query = "SELECT $COLUMN_FAVORITE_CITY, $COLUMN_FAVORITE_COUNTRY FROM $TABLE_FAVORITE_CITIES"
+        val cursor = db.rawQuery(query, null)
         while (cursor.moveToNext()) {
             val city = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FAVORITE_CITY))
             val country = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FAVORITE_COUNTRY))
             favoriteCities.add("$city, $country")
         }
         cursor.close()
+        db.close()
+        Log.d("DatabaseContent", "Favorite Cities in DB: $favoriteCities")
         return favoriteCities
     }
-
-
-
-
-
 }
