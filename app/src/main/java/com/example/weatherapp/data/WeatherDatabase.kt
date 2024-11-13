@@ -22,7 +22,6 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         const val COLUMN_FORECAST_DATA = "forecast_data"
         const val COLUMN_TIMESTAMP = "timestamp"
 
-
         // Tabulka pro oblíbená města
         const val TABLE_FAVORITE_CITIES = "favorite_cities"
         const val COLUMN_FAVORITE_CITY = "favorite_city"
