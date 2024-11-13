@@ -11,7 +11,9 @@ Funkce 🚀
 
 *   **Aktuální předpověď počasí:** Zobrazení aktuální teploty a povětrnostních podmínek. 🌡️
 
-*   **Předpověď počasí na 5 dní dopředu:** Umožňuje uživatelům plánovat na základě budoucího počasí. 📅
+*   **Předpověď počasí na den dozadu a 5 dní dopředu:** Umožňuje uživatelům plánovat na základě budoucího počasí. 📅
+
+*   **Aktuální stav počasí z domácí meteostanice:** Zobrazení aktuálních dat o počasí z domácí meteostanice. 🏡
 
 *   **Vyhledávání měst:** Rychlé a snadné vyhledání dostupných měst z OpenWeatherMap API. 🔍
 
