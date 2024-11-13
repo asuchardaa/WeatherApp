@@ -9,7 +9,7 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
 
     companion object {
         private const val DATABASE_NAME = "WeatherData.db"
-        private const val DATABASE_VERSION = 5
+        private const val DATABASE_VERSION = 6
 
         // Tabulka pro aktuální počasí
         const val TABLE_CURRENT_WEATHER = "weather"
@@ -20,6 +20,8 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         // Tabulka pro předpověď počasí
         const val TABLE_FORECAST_WEATHER = "forecast_weather"
         const val COLUMN_FORECAST_DATA = "forecast_data"
+        const val COLUMN_TIMESTAMP = "timestamp"
+
 
         // Tabulka pro oblíbená města
         const val TABLE_FAVORITE_CITIES = "favorite_cities"
@@ -42,6 +44,7 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
                 "$COLUMN_CITY TEXT," +
                 "$COLUMN_COUNTRY TEXT," +
                 "$COLUMN_FORECAST_DATA TEXT," +
+                "$COLUMN_TIMESTAMP INTEGER," +
                 "PRIMARY KEY ($COLUMN_CITY, $COLUMN_COUNTRY))")
         db.execSQL(CREATE_FORECAST_WEATHER_TABLE)
 
@@ -98,9 +101,16 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
 
     // Funkce pro načtení předpovědi počasí
     fun getForecastWeather(city: String, country: String): String? {
+        val oneDayAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
+
         return try {
             val db = readableDatabase
-            val cursor = db.rawQuery("SELECT $COLUMN_FORECAST_DATA FROM $TABLE_FORECAST_WEATHER WHERE $COLUMN_CITY = ? AND $COLUMN_COUNTRY = ?", arrayOf(city, country))
+            deleteOldForecasts(db)
+            val cursor = db.rawQuery(
+                "SELECT $COLUMN_FORECAST_DATA FROM $TABLE_FORECAST_WEATHER" +
+                        " WHERE $COLUMN_CITY = ? AND $COLUMN_COUNTRY = ? AND $COLUMN_TIMESTAMP > ?",
+                arrayOf(city, country, oneDayAgo.toString()))
+
             cursor.use {
                 if (it.moveToFirst()) return it.getString(it.getColumnIndexOrThrow(
                     COLUMN_FORECAST_DATA
@@ -111,6 +121,12 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
             null
         }
     }
+
+    private fun deleteOldForecasts(db: SQLiteDatabase) {
+        val oneDayAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
+        db.execSQL("DELETE FROM $TABLE_FORECAST_WEATHER WHERE $COLUMN_TIMESTAMP < ?", arrayOf(oneDayAgo.toString()))
+    }
+
 
     // Funkce pro přidání města do oblíbených
     fun insertOrUpdateFavoriteCity(city: String, country: String) {
