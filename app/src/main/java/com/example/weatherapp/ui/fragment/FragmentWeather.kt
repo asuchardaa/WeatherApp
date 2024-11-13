@@ -174,19 +174,19 @@ class FragmentWeather : Fragment() {
     }
 
     private fun parseCitySuggestions(response: String): List<String> {
-        val cities = mutableListOf<String>()
+        val cities = mutableSetOf<String>()
         try {
             val jsonArray = JSONArray(response)
             for (i in 0 until jsonArray.length()) {
                 val cityObject = jsonArray.getJSONObject(i)
-                val name = cityObject.getString("name")
-                val country = cityObject.getString("country")
+                val name = cityObject.getString("name").trim()
+                val country = cityObject.getString("country").trim()
                 cities.add("$name, $country")
             }
         } catch (e: Exception) {
             Log.e("FragmentWeather", "Error parsing city suggestions", e)
         }
-        return cities
+        return cities.toList()
     }
 
     private fun fetchData() {

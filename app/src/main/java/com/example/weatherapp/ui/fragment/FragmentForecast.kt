@@ -83,6 +83,7 @@ class FragmentForecast : Fragment() {
         try {
             val response = URL("https://api.openweathermap.org/data/2.5/forecast?q=$CITY,$COUNTRY&units=metric&appid=$API").readText()
             weatherDatabase.insertOrUpdateForecastWeather(CITY, COUNTRY, response)
+            Log.e("FragmentForecast", "Response: $response")
             withContext(Dispatchers.Main) {
                 updateUIWithForecastData(response)
             }
@@ -132,18 +133,19 @@ class FragmentForecast : Fragment() {
 
     private fun getWeatherIcon(iconCode: String): Int {
         return when (iconCode) {
-            "01d" -> R.drawable.ic_sunny
-            "02d" -> R.drawable.ic_partly_cloudy
-            "03d" -> R.drawable.ic_cloudy
-            "04d" -> R.drawable.ic_broken_clouds
-            "09d" -> R.drawable.ic_rain
-            "10d" -> R.drawable.ic_rain_sun
-            "11d" -> R.drawable.ic_thunderstorm
-            "13d" -> R.drawable.ic_snow
-            "50d" -> R.drawable.ic_mist
+            "01d", "01n" -> R.drawable.clear_sky
+            "02d", "02n" -> R.drawable.few_clouds
+            "03d", "03n" -> R.drawable.scattered_clouds
+            "04d", "04n" -> R.drawable.broken_clouds
+            "09d", "09n" -> R.drawable.shower_rain
+            "10d", "10n" -> R.drawable.rain
+            "11d", "11n" -> R.drawable.thunderstorm
+            "13d", "13n" -> R.drawable.snow
+            "50d", "50n" -> R.drawable.mist
             else -> R.drawable.weather_icon
         }
     }
+
 
     private fun showError(message: String) {
         loader.visibility = View.GONE
