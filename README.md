@@ -23,24 +23,23 @@ Funkce 🚀
 
 *   **Oblíbená města:** Uživatelé mohou ukládat a načítat oblíbená města pro rychlý přístup. ⭐
 
-*   **Světlý a tmavý režim:** Uživatelé si mohou vybrat preferovaný vizuální styl. 🌞🌙
-    
-*   **Multijazyčná aplikace:** Možnost přepínání mezi různými jazyky pro širší přístupnost. 🌐
-    
-*   **Sdílení počasí:** Uživatelé mohou sdílet informace o počasí s přáteli a rodinou. 📤
-    
-*   **Notifikace:** Uživatelé mohou dostávat notifikace o změnách počasí. 📩
-
-*   **Podpora geolokace:** Uživatelé mohou získat aktuální předpověď počasí pro svou polohu. 📍
-
-*   **Animace počasí:** Vizuální zobrazení počasí pomocí animací. 🌪️
-
 FRONTEND TO-DO
 * **Úprava home fragmentu - zatmavení pozadí a průhledné aktuální počasí**
 
 * **Úprava hvězdičky dle oblíbeného města -> ANO/NE**
 
+REST TO-DO
+*   **Světlý a tmavý režim:** Uživatelé si mohou vybrat preferovaný vizuální styl. 🌞🌙
 
+*   **Multijazyčná aplikace:** Možnost přepínání mezi různými jazyky pro širší přístupnost. 🌐
+
+*   **Sdílení počasí:** Uživatelé mohou sdílet informace o počasí s přáteli a rodinou. 📤
+
+*   **Notifikace:** Uživatelé mohou dostávat notifikace o změnách počasí. 📩
+
+*   **Podpora geolokace:** Uživatelé mohou získat aktuální předpověď počasí pro svou polohu. 📍
+
+*   **Animace počasí:** Vizuální zobrazení počasí pomocí animací. 🌪️
 
 
 
