@@ -35,4 +35,21 @@
         app:itemIconTint="@drawable/bottom_nav_item_color_state_list"
         app:itemTextColor="@drawable/bottom_nav_item_color_state_list"/>
 
+    <View
+        android:id="@+id/dark_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/gps_loader_icon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:src="@drawable/gps_not_fixed"
+        app:tint="@color/white"
+        android:contentDescription="GPS Searching" />
+
 </RelativeLayout>

@@ -1,7 +1,10 @@
 package com.example.weatherapp.ui.fragment
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
@@ -18,8 +21,18 @@ import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.BuildConfig
+import android.Manifest
+import android.os.Handler
+import android.os.Looper
+import android.view.animation.AnimationUtils
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
 import org.json.JSONArray
@@ -28,6 +41,8 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
+
+@Suppress("DEPRECATION")
 class FragmentWeather : Fragment() {
     var CITY = "Prague"
     var COUNTRY = "CZ"
@@ -39,6 +54,13 @@ class FragmentWeather : Fragment() {
     private lateinit var errorText: TextView
     private lateinit var favoriteHeartIcon: ImageView
     private lateinit var citySearch: AutoCompleteTextView
+    private lateinit var locationIcon: ImageView
+    private lateinit var locationManager: LocationManager
+
+
+    private val locationPermissionCode = 2
+    private val handler = Handler(Looper.getMainLooper())
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -56,6 +78,22 @@ class FragmentWeather : Fragment() {
         errorText = view.findViewById(R.id.errorText)
         favoriteHeartIcon = view.findViewById(R.id.favoriteIcon)
         citySearch = view.findViewById(R.id.citySearch)
+        locationIcon = view.findViewById(R.id.locationIcon)
+        locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        // Nastavení klikací události pro ikonu geolokace
+        locationIcon.setOnClickListener {
+            getCurrentLocation()
+        }
+
+        // Inicializace ikony geolokace při spuštění
+        updateGpsIcon()
+
+        // Zkontrolujte stav GPS při obnovení fragmentu
+        /*requireActivity().registerReceiver(
+            gpsStatusReceiver,
+            IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+        )*/
 
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().remove("city").apply()
@@ -196,6 +234,130 @@ class FragmentWeather : Fragment() {
             updateUIWithWeatherData(cachedData)
         } else {
             WeatherTask().execute()
+        }
+    }
+
+    private fun getCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionCode)
+        } else {
+            locationIcon.setImageResource(R.drawable.gps_not_fixed)
+            startGpsLoaderAnimation()
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, locationListener)
+        }
+    }
+
+    private val locationListener = LocationListener { location ->
+        locationIcon.setImageResource(R.drawable.gps_fixed)
+        stopGpsLoaderAnimation()
+        fetchNearestCityFromLocation(location)
+    }
+
+    private fun fetchNearestCityFromLocation(location: Location) {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+
+        if (addresses != null && addresses.isNotEmpty()) {
+            val cityName = addresses[0].locality ?: "Unknown"
+            val countryName = addresses[0].countryCode ?: "Unknown"
+
+            if (cityName != "Unknown") {
+                // Aktualizujeme CITY a COUNTRY
+                CITY = cityName
+                COUNTRY = countryName
+
+                // Uložení města a země do SharedPreferences
+                val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+                with(sharedPreferences.edit()) {
+                    putString("selected_city", CITY)
+                    putString("selected_country", COUNTRY)
+                    apply()
+                }
+
+                // Skryjeme loader a načteme nová data
+                stopGpsLoaderAnimation()
+                fetchData()
+            } else {
+                showErrorAndReturn()
+            }
+        } else {
+            showErrorAndReturn()
+        }
+    }
+
+    private fun showErrorAndReturn() {
+        handler.post {
+            Toast.makeText(requireContext(), "Město nebylo nalezeno nebo špatná GPS", Toast.LENGTH_SHORT).show()
+            stopGpsLoaderAnimation()
+            locationManager.removeUpdates(locationListener)
+            restorePreviousCity()
+        }
+    }
+
+    private fun restorePreviousCity() {
+        val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+        CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
+        COUNTRY = sharedPreferences.getString("selected_country", "CZ") ?: "CZ"
+        fetchData()
+    }
+
+    private fun updateGpsIcon() {
+        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        locationIcon.setImageResource(
+            if (isGpsEnabled) R.drawable.gps_not_fixed else R.drawable.gps_off
+        )
+    }
+
+    private fun startGpsLoaderAnimation() {
+        val gpsLoaderIcon = activity?.findViewById<ImageView>(R.id.gps_loader_icon)
+        gpsLoaderIcon?.visibility = View.VISIBLE
+        val rotateAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_gps)
+        gpsLoaderIcon?.startAnimation(rotateAnimation)
+        showDarkOverlay()
+    }
+
+    private fun stopGpsLoaderAnimation() {
+        val gpsLoaderIcon = activity?.findViewById<ImageView>(R.id.gps_loader_icon)
+        gpsLoaderIcon?.clearAnimation()
+        gpsLoaderIcon?.visibility = View.GONE
+        hideDarkOverlay()
+    }
+
+    private fun showDarkOverlay() {
+        val darkOverlay = activity?.findViewById<View>(R.id.dark_overlay)
+        darkOverlay?.visibility = View.VISIBLE
+    }
+
+    private fun hideDarkOverlay() {
+        val darkOverlay = activity?.findViewById<View>(R.id.dark_overlay)
+        darkOverlay?.visibility = View.GONE
+    }
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == locationPermissionCode) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                getCurrentLocation()
+            } else {
+                Toast.makeText(requireContext(), "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateGpsIcon()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        locationManager.removeUpdates(locationListener)
+    }
+
+    private val gpsStatusReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            updateGpsIcon()
         }
     }
 

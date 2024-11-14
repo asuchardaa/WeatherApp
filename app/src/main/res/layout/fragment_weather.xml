@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="25dp"
@@ -17,14 +18,15 @@
         android:contentDescription="Favorites" />
 
     <ImageView
-        android:id="@+id/homeIcon"
+        android:id="@+id/locationIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_marginTop="16dp"
-        android:src="@drawable/ic_home"
+        android:layout_marginEnd="40dp"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/gps_off"
         app:tint="@color/white"
-        android:contentDescription="Home" />
+        android:contentDescription="Use Location" />
 
     <RelativeLayout
         android:id="@+id/mainContainer"
@@ -273,12 +275,21 @@
             </LinearLayout>
             <Space android:layout_width="wrap_content" android:layout_height="wrap_content"/>
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/homeIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:contentDescription="Home"
+            android:src="@drawable/ic_home"
+            app:tint="@color/white" />
     </RelativeLayout>
 
     <ProgressBar
         android:id="@+id/loader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:visibility="gone" />
 
@@ -290,3 +301,5 @@
         android:visibility="gone"
         android:text="Something went wrong" />
 </RelativeLayout>
+
+
