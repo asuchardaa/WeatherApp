@@ -35,6 +35,14 @@ Funkce 🚀
 
 *   **Animace počasí:** Vizuální zobrazení počasí pomocí animací. 🌪️
 
+FRONTEND TO-DO
+* **Úprava home fragmentu - zatmavení pozadí a průhledné aktuální počasí**
+
+* **Úprava hvězdičky dle oblíbeného města -> ANO/NE**
+
+
+
+
 
 Technologie 🛠️
 ---------------

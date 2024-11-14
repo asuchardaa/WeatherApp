@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="10dp"
-    android:background="@drawable/gradient_forecast_list_bg">
+    android:background="#3CF1EBF1">
 
     <TextView
         android:id="@+id/forecastDate"

@@ -94,6 +94,7 @@
                 android:fontFamily="sans-serif-thin"
                 android:layout_gravity="center"
                 android:text="29°C"
+                android:textStyle="bold"
                 android:textColor="@color/white" />
 
             <LinearLayout
