@@ -23,7 +23,6 @@ Funkce 🚀
 
 *   **Oblíbená města:** Uživatelé mohou ukládat a načítat oblíbená města pro rychlý přístup. ⭐
 
--- TODO --
 *   **Světlý a tmavý režim:** Uživatelé si mohou vybrat preferovaný vizuální styl. 🌞🌙
     
 *   **Multijazyčná aplikace:** Možnost přepínání mezi různými jazyky pro širší přístupnost. 🌐
