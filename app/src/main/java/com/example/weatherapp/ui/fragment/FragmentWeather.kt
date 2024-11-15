@@ -35,6 +35,7 @@ import android.os.Looper
 import android.view.animation.AnimationUtils
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
+import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
@@ -43,7 +44,7 @@ import java.util.*
 
 
 @Suppress("DEPRECATION")
-class FragmentWeather : Fragment() {
+class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
     var CITY = "Prague"
     var COUNTRY = "CZ"
     val API = BuildConfig.API_KEY
@@ -104,6 +105,8 @@ class FragmentWeather : Fragment() {
         COUNTRY = sharedPreferences.getString("selected_country", "CZ") ?: "CZ"
         citySearch.setText(CITY)
 
+        updateStarIcon()
+
         // logika pro změnu města
         citySearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
@@ -115,6 +118,7 @@ class FragmentWeather : Fragment() {
                     if (it.length > 2) {
                         fetchCitySuggestions(it.toString())
                         //citySearch.setText("")
+                        updateStarIcon()
                     }
                 }
             }
@@ -133,6 +137,8 @@ class FragmentWeather : Fragment() {
 
             fetchData()
             citySearch.clearFocus()
+
+            updateStarIcon()
         }
 
         // diky gpt, drawableEnd bych nikdy nezvladnul :D
@@ -143,11 +149,17 @@ class FragmentWeather : Fragment() {
                 if (drawableEnd != null) {
                     val drawableStartX = citySearch.width - citySearch.paddingEnd - drawableEnd.intrinsicWidth
                     if (event.x >= drawableStartX) {
-                        // Přidání města do oblíbených
-                        if (CITY.isNotEmpty()) {
-                            weatherDatabase.insertOrUpdateFavoriteCity(CITY, COUNTRY)
-                            Toast.makeText(requireContext(), "$CITY přidáno do oblíbených", Toast.LENGTH_SHORT).show()
-                        }
+                        // Přidání nebo odstranění města z oblíbených
+                            val isFavorite = isCityInFavorites(CITY, COUNTRY)
+                            // Přidání města do oblíbených
+                            if (CITY.isNotEmpty()) {
+                                weatherDatabase.insertOrUpdateFavoriteCity(CITY, COUNTRY)
+                                Toast.makeText(requireContext(), "$CITY přidáno do oblíbených", Toast.LENGTH_SHORT).show()
+                                updateStarIcon()
+                            }
+                            if (isFavorite) {
+                                updateStarIcon()
+                            }
                         return@setOnTouchListener true
                     }
                 }
@@ -192,6 +204,7 @@ class FragmentWeather : Fragment() {
 
         fetchData()
         citySearch.setText("")
+        updateStarIcon()
     }
 
 
@@ -296,6 +309,18 @@ class FragmentWeather : Fragment() {
         }
     }
 
+    private fun isCityInFavorites(city: String, country: String): Boolean {
+        val favoriteCities = weatherDatabase.getAllFavoriteCities()
+        val cityWithCountry = "$city, $country"
+        return favoriteCities.contains(cityWithCountry)
+    }
+
+    fun updateStarIcon() {
+        val isFavorite = isCityInFavorites(CITY, COUNTRY)
+        val starIcon = if (isFavorite) R.drawable.ic_star_filled else R.drawable.ic_star
+        citySearch.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, starIcon, 0)
+    }
+
     private fun showErrorAndReturn() {
         handler.post {
             Toast.makeText(requireContext(), "GPS timeout: město nebylo nalezeno.", Toast.LENGTH_SHORT).show()
@@ -344,6 +369,9 @@ class FragmentWeather : Fragment() {
         darkOverlay?.visibility = View.GONE
     }
 
+    override fun onFavoritesUpdated() {
+        updateStarIcon()
+    }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -359,6 +387,7 @@ class FragmentWeather : Fragment() {
     override fun onResume() {
         super.onResume()
         updateGpsIcon()
+        updateStarIcon()
     }
 
     override fun onDestroyView() {
@@ -366,12 +395,6 @@ class FragmentWeather : Fragment() {
         locationManager.removeUpdates(locationListener)
         gpsTimeoutRunnable?.let {
             gpsTimeoutHandler.removeCallbacks(it)
-        }
-    }
-
-    private val gpsStatusReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            updateGpsIcon()
         }
     }
 

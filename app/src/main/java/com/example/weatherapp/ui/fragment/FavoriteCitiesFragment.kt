@@ -11,13 +11,16 @@ import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
 import com.example.weatherapp.ui.adapter.FavoriteCitiesAdapter
 import com.example.weatherapp.listeners.OnCitySelectedListener
+import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
 
 class FavoriteCitiesFragment : DialogFragment() {
 
-    private var listener: OnCitySelectedListener? = null
     private lateinit var favoriteCitiesAdapter: FavoriteCitiesAdapter
     private lateinit var favoriteCities: MutableList<String>
     private lateinit var weatherDatabase: WeatherDatabase
+
+    private var listener: OnCitySelectedListener? = null
+    private var favoritesUpdatedListener: OnFavoritesUpdatedListener? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -25,6 +28,11 @@ class FavoriteCitiesFragment : DialogFragment() {
             listener = context
         } else {
             throw RuntimeException("$context must implement OnCitySelectedListener")
+        }
+        if (context is OnFavoritesUpdatedListener) {
+            favoritesUpdatedListener = context
+        } else {
+            throw RuntimeException("$context must implement OnFavoritesUpdatedListener")
         }
     }
 
@@ -38,6 +46,8 @@ class FavoriteCitiesFragment : DialogFragment() {
         val favoriteCitiesList = view.findViewById<ListView>(R.id.favoriteCitiesListView)
         favoriteCitiesAdapter = FavoriteCitiesAdapter(requireContext(), favoriteCities) { deletedCity ->
             favoriteCities.remove(deletedCity)
+            weatherDatabase.removeFavoriteCity(deletedCity.substringBefore(","), deletedCity.substringAfter(", "))
+            favoritesUpdatedListener?.onFavoritesUpdated()
             favoriteCitiesAdapter.notifyDataSetChanged()
         }
 
@@ -47,7 +57,9 @@ class FavoriteCitiesFragment : DialogFragment() {
             val selectedCityAndCountry = favoriteCities[position]
             val city = selectedCityAndCountry.substringBefore(",")
             val country = selectedCityAndCountry.substringAfter(", ")
+
             listener?.onCitySelected(city, country)
+            favoritesUpdatedListener?.onFavoritesUpdated()
             dismiss()
         }
 
@@ -60,8 +72,21 @@ class FavoriteCitiesFragment : DialogFragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        val window = dialog?.window
+        if (window != null) {
+            val params = window.attributes
+            params.width = (resources.displayMetrics.widthPixels * 0.9).toInt() // 90% šířky obrazovky
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT // Výška přizpůsobená obsahu
+            window.attributes = params
+        }
+    }
+
+
     override fun onDetach() {
         super.onDetach()
         listener = null
+        favoritesUpdatedListener = null
     }
 }

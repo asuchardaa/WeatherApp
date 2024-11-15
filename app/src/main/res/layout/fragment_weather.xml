@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,45 +8,69 @@
     android:padding="25dp"
     android:background="@drawable/gradient_bg">
 
-    <ImageView
-        android:id="@+id/favoriteIcon"
-        android:layout_width="wrap_content"
+    <AutoCompleteTextView
+        android:id="@+id/citySearch"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/ic_heart"
-        app:tint="@color/white"
-        android:contentDescription="Favorites" />
+        android:background="@drawable/search_box_background"
+        android:completionThreshold="2"
+        android:hint="Enter city"
+        android:inputType="text"
+        android:padding="10dp"
+        android:textColor="@color/black"
+        android:drawableEnd="@drawable/ic_star"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="80dp" />
 
-    <ImageView
-        android:id="@+id/locationIcon"
+    <LinearLayout
+        android:id="@+id/iconRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="40dp"
-        android:layout_alignParentEnd="true"
-        android:src="@drawable/gps_off"
-        app:tint="@color/white"
-        android:contentDescription="Use Location" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/citySearch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <!-- GPS Ikona -->
+        <ImageView
+            android:id="@+id/locationIcon"
+            android:layout_width="40dp"
+            android:layout_height="55dp"
+            android:src="@drawable/gps_off"
+            app:tint="@color/white"
+            android:contentDescription="Use Location"
+            android:layout_marginEnd="16dp" />
+
+        <!-- Home Ikona -->
+        <ImageView
+            android:id="@+id/homeIcon"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_home"
+            app:tint="@color/white"
+            android:contentDescription="Home"
+            android:layout_marginEnd="16dp"
+            android:elevation="8dp" />
+
+        <!-- Favorites Ikona -->
+        <ImageView
+            android:id="@+id/favoriteIcon"
+            android:layout_width="50dp"
+            android:layout_height="55dp"
+            android:src="@drawable/ic_heart"
+            app:tint="@color/white"
+            android:contentDescription="Favorites" />
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/mainContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible">
-
-        <AutoCompleteTextView
-            android:id="@+id/citySearch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:background="@drawable/search_box_background"
-            android:completionThreshold="2"
-            android:hint="Enter city"
-            android:inputType="text"
-            android:padding="10dp"
-            android:textColor="@color/black"
-            android:drawableEnd="@drawable/ic_star" />
 
         <LinearLayout
             android:id="@+id/addressContainer"
@@ -275,15 +300,6 @@
             </LinearLayout>
             <Space android:layout_width="wrap_content" android:layout_height="wrap_content"/>
         </LinearLayout>
-
-        <ImageView
-            android:id="@+id/homeIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:contentDescription="Home"
-            android:src="@drawable/ic_home"
-            app:tint="@color/white" />
     </RelativeLayout>
 
     <ProgressBar
@@ -299,7 +315,9 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone"
-        android:text="Something went wrong" />
-</RelativeLayout>
+        android:text="Something went wrong"
+        tools:ignore="MissingConstraints" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 

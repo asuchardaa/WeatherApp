@@ -4,12 +4,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.listeners.OnCitySelectedListener
+import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
 import com.example.weatherapp.ui.fragment.FragmentForecast
 import com.example.weatherapp.ui.fragment.FragmentWeather
 import com.example.weatherapp.ui.fragment.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : AppCompatActivity(), OnCitySelectedListener {
+class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpdatedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,5 +55,13 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener {
     override fun onCitySelected(city: String, country: String) {
         val fragmentWeather = supportFragmentManager.findFragmentById(R.id.mainContainer) as? FragmentWeather
         fragmentWeather?.onCitySelected(city, country)
+    }
+
+    override fun onFavoritesUpdated() {
+        // Najděte FragmentWeather a zavolejte updateStarIcon
+        val fragment = supportFragmentManager.findFragmentById(R.id.mainContainer)
+        if (fragment is FragmentWeather) {
+            fragment.updateStarIcon()
+        }
     }
 }
