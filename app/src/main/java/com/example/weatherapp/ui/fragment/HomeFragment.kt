@@ -24,6 +24,8 @@ class HomeFragmentDialog : DialogFragment() {
     private lateinit var elevTextView: TextView
     private lateinit var obsTimeTextView: TextView
     private lateinit var cityNameTextView: TextView
+    private lateinit var uvTextView : TextView
+    private lateinit var feelsLikeTextView : TextView
 
     var API = BuildConfig.HOME_API
     var WEATHER_STATION_ID = BuildConfig.STATION_ID
@@ -47,6 +49,8 @@ class HomeFragmentDialog : DialogFragment() {
         elevTextView = view.findViewById(R.id.elevTextView)
         obsTimeTextView = view.findViewById(R.id.obsTimeTextView)
         cityNameTextView = view.findViewById(R.id.cityNameTextView)
+        feelsLikeTextView = view.findViewById(R.id.feelsLikeTextView)
+        uvTextView = view.findViewById(R.id.uvTextView)
 
         fetchTemperatureData()
     }
@@ -77,18 +81,21 @@ class HomeFragmentDialog : DialogFragment() {
             if (result != null) {
                 try {
                     // tady bacha na api response, metric x imperial (lisi se dle jednotek, ale me imo by mohlo stacit metric a zbytek si dobrat sam...)
-                    val cityName = result.optString("neighborhood", "Neznámé město")
                     val metric = result.optJSONObject("metric")
                     if (metric != null) {
-                        val temp = metric.optDouble("temp", Double.NaN)
+                        val cityName = result.optString("neighborhood", "Neznámé město")
                         val obsTime = result.optString("obsTimeLocal", "Neznámý čas")
                         val humidity = result.optInt("humidity", -1)
+                        val temp = metric.optDouble("temp", Double.NaN)
+                        val uv = result.optInt("uv", -1)
+                        val feelsLike = metric.optDouble("windChill", Double.NaN)
                         val windSpeed = metric.optDouble("windSpeed", Double.NaN)
                         val pressure = metric.optDouble("pressure", Double.NaN)
                         val precip = metric.optDouble("precipTotal", Double.NaN)
                         val elev = metric.optInt("elev", -1)
 
                         temperatureTextView.text = "Teplota: $temp°C"
+                        feelsLikeTextView.text = "Pocitová teplota: $feelsLike°C"
                         obsTimeTextView.text = "Čas měření: $obsTime"
                         humidityTextView.text = "Vlhkost: $humidity%"
                         windSpeedTextView.text = "Rychlost větru: $windSpeed km/h"
@@ -96,6 +103,7 @@ class HomeFragmentDialog : DialogFragment() {
                         precipTextView.text = "Srážky: $precip mm"
                         elevTextView.text = "Výška: $elev m"
                         cityNameTextView.text = cityName
+                        uvTextView.text = "UV index: $uv"
                     } else {
                         Toast.makeText(requireContext(), "Data pro teplotu nejsou dostupná", Toast.LENGTH_SHORT).show()
                     }

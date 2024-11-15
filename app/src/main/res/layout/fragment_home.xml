@@ -1,199 +1,313 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_bg"
-    android:padding="16dp">
+    android:background="#3CF1EBF1"
+    android:fillViewport="true">
 
-    <!-- ScrollView to scroll content across the entire screen -->
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:background="@drawable/gradient_bg"
+        tools:ignore="ExtraText,ScrollViewSize">
 
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Název města -->
+        <TextView
+            android:id="@+id/cityNameTextView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:background="@drawable/rounded_corner"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text="City Name"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- City Name -->
-            <TextView
-                android:id="@+id/cityNameTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Město: Nová Paka"
-                android:textSize="28sp"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="20dp"
-                android:textStyle="bold"
-                android:gravity="center"/>
+        <!-- Teplota -->
+        <TextView
+            android:id="@+id/temperatureTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="--°C"
+            android:textColor="#FFFFFF"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cityNameTextView" />
 
-            <!-- Temperature -->
-            <LinearLayout
+        <TextView
+            android:id="@+id/obsTimeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:text="Observation Time: --:--"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/temperatureTextView" />
+
+        <!-- GridLayout pro dlaždice -->
+        <androidx.gridlayout.widget.GridLayout
+            android:id="@+id/weatherGridLayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            app:columnCount="1"
+            app:rowCount="7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/obsTimeTextView">
+
+            <!-- Pocitová teplota -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_corner"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
-                <ImageView
-                    android:src="@drawable/ic_temp"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="12dp"/>
-                <TextView
-                    android:id="@+id/temperatureTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Teplota: Načítání..."
-                    android:textSize="24sp"
-                    android:textColor="@android:color/black"
-                    android:layout_gravity="center_vertical"/>
-            </LinearLayout>
+                android:layout_margin="8dp"
+                android:backgroundTint="#3CF1EBF1"
+                android:background="@android:color/transparent"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="12dp">
 
-            <!-- Time of Measurement -->
             <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_altitude"
+                        app:tint="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/feelsLikeTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Pocitová teplota: --°C"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Vlhkost -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_corner"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
-                <ImageView
-                    android:src="@drawable/ic_clock"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="12dp"/>
-                <TextView
-                    android:id="@+id/obsTimeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Čas měření: Načítání..."
-                    android:textSize="22sp"
-                    android:textColor="@android:color/black"
-                    android:layout_gravity="center_vertical"/>
-            </LinearLayout>
+                android:layout_margin="8dp"
+                app:cardCornerRadius="12dp"
+                android:backgroundTint="#3CF1EBF1"
+                android:background="@android:color/transparent"
+                app:cardElevation="0dp">
 
-            <!-- Humidity -->
-            <LinearLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_humidity"
+                        app:tint="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/humidityTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Humidity: --%"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Rychlost větru -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_corner"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
-                <ImageView
-                    android:src="@drawable/ic_humidity"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="12dp"/>
-                <TextView
-                    android:id="@+id/humidityTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vlhkost: Načítání..."
-                    android:textSize="22sp"
-                    android:textColor="@android:color/black"
-                    android:layout_gravity="center_vertical"/>
-            </LinearLayout>
+                android:layout_margin="8dp"
+                app:cardCornerRadius="12dp"
+                android:backgroundTint="#3CF1EBF1"
+                android:background="@android:color/transparent"
+                app:cardElevation="0dp">
 
-            <!-- Wind Speed -->
-            <LinearLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_wind"
+                        app:tint="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/windSpeedTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Wind Speed: -- km/h"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Tlak -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_corner"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
-                <ImageView
-                    android:src="@drawable/ic_wind"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="12dp"/>
-                <TextView
-                    android:id="@+id/windSpeedTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rychlost větru: Načítání..."
-                    android:textSize="22sp"
-                    android:textColor="@android:color/black"
-                    android:layout_gravity="center_vertical"/>
-            </LinearLayout>
+                android:layout_margin="8dp"
+                app:cardCornerRadius="12dp"
+                android:backgroundTint="#3CF1EBF1"
+                android:background="@android:color/transparent"
+                app:cardElevation="0dp">
 
-            <!-- Air Pressure -->
-            <LinearLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_pressure"
+                        app:tint="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/pressureTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Pressure: -- hPa"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Srážky -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_corner"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
-                <ImageView
-                    android:src="@drawable/ic_pressure"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="12dp"/>
-                <TextView
-                    android:id="@+id/pressureTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tlak vzduchu: Načítání..."
-                    android:textSize="22sp"
-                    android:textColor="@android:color/black"
-                    android:layout_gravity="center_vertical"/>
-            </LinearLayout>
+                android:layout_margin="8dp"
+                app:cardCornerRadius="12dp"
+                android:backgroundTint="#3CF1EBF1"
+                android:background="@android:color/transparent"
+                app:cardElevation="0dp">
 
-            <!-- Precipitation -->
-            <LinearLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_rain"
+                        app:tint="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/precipTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Precipitation: -- mm"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Nadmořská výška -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_corner"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
-                <ImageView
-                    android:src="@drawable/ic_rain"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="12dp"/>
-                <TextView
-                    android:id="@+id/precipTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Srážky: Načítání..."
-                    android:textSize="22sp"
-                    android:textColor="@android:color/black"
-                    android:layout_gravity="center_vertical"/>
-            </LinearLayout>
+                android:layout_margin="8dp"
+                app:cardCornerRadius="12dp"
+                android:backgroundTint="#3CF1EBF1"
+                android:background="@android:color/transparent"
+                app:cardElevation="0dp">
 
-            <!-- Elevation -->
-            <LinearLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_altitude"
+                        app:tint="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/elevTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Elevation: -- m"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- UV RISK -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_corner"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
-                <ImageView
-                    android:src="@drawable/ic_altitude"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginEnd="12dp"/>
-                <TextView
-                    android:id="@+id/elevTextView"
-                    android:layout_width="wrap_content"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="12dp"
+                android:backgroundTint="#3CF1EBF1"
+                android:background="@android:color/transparent"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Výška: Načítání..."
-                    android:textSize="22sp"
-                    android:textColor="@android:color/black"
-                    android:layout_gravity="center_vertical"/>
-            </LinearLayout>
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
 
-        </LinearLayout>
-    </ScrollView>
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/uv_index"
+                        app:tint="@color/white"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/uvTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="UV Index: 0"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.gridlayout.widget.GridLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -106,7 +106,7 @@ class FragmentForecast : Fragment() {
                 val main = forecast.getJSONObject("main")
                 val weather = forecast.getJSONArray("weather").getJSONObject(0)
                 val dateTime = forecast.getLong("dt") * 1000
-                val date = SimpleDateFormat("EEE, d MMM yyyy", Locale.ENGLISH).format(Date(dateTime))
+                val date = SimpleDateFormat("EEE, d MMM HH:mm", Locale.ENGLISH).format(Date(dateTime))
 
                 val forecastItem = Forecast(
                     date = date,
