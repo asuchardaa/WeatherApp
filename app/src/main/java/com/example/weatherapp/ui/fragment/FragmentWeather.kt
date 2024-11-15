@@ -58,6 +58,8 @@ class FragmentWeather : Fragment() {
     private lateinit var locationManager: LocationManager
 
 
+    private val gpsTimeoutHandler = Handler(Looper.getMainLooper())
+    private var gpsTimeoutRunnable: Runnable? = null
     private val locationPermissionCode = 2
     private val handler = Handler(Looper.getMainLooper())
 
@@ -243,12 +245,21 @@ class FragmentWeather : Fragment() {
         } else {
             locationIcon.setImageResource(R.drawable.gps_not_fixed)
             startGpsLoaderAnimation()
+
+            gpsTimeoutRunnable = Runnable {
+                stopGpsLoaderAnimation()
+                locationManager.removeUpdates(locationListener)
+                showErrorAndReturn()
+            }
+            gpsTimeoutHandler.postDelayed(gpsTimeoutRunnable!!, 10000)
+
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, locationListener)
         }
     }
 
     private val locationListener = LocationListener { location ->
         locationIcon.setImageResource(R.drawable.gps_fixed)
+        gpsTimeoutHandler.removeCallbacks(gpsTimeoutRunnable!!)
         stopGpsLoaderAnimation()
         fetchNearestCityFromLocation(location)
     }
@@ -287,8 +298,8 @@ class FragmentWeather : Fragment() {
 
     private fun showErrorAndReturn() {
         handler.post {
-            Toast.makeText(requireContext(), "Město nebylo nalezeno nebo špatná GPS", Toast.LENGTH_SHORT).show()
-            stopGpsLoaderAnimation()
+            Toast.makeText(requireContext(), "GPS timeout: město nebylo nalezeno.", Toast.LENGTH_SHORT).show()
+            stopGpsLoaderAnimation() // Zastaví animaci a skryje tmavou vrstvu
             locationManager.removeUpdates(locationListener)
             restorePreviousCity()
         }
@@ -353,6 +364,9 @@ class FragmentWeather : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         locationManager.removeUpdates(locationListener)
+        gpsTimeoutRunnable?.let {
+            gpsTimeoutHandler.removeCallbacks(it)
+        }
     }
 
     private val gpsStatusReceiver = object : BroadcastReceiver() {
