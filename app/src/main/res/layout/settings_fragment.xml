@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mainContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/gradient_bg"
+    android:background="@drawable/gradient_purple_bg"
     android:padding="16dp">
 
     <!-- Nadpis -->
@@ -11,26 +12,88 @@
         android:id="@+id/settingsHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nastavení"
+        android:text="@string/settingsHeader"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Přepínač pro WeatherService -->
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/weatherServiceSwitch"
+    <!-- Výběr jazyka -->
+    <TextView
+        android:id="@+id/languageLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Aktivovat službu počasí"
+        android:text="@string/language_label"
         android:textSize="18sp"
         android:textColor="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/settingsHeader"
         app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/czechButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/czechButton"
+        app:layout_constraintTop_toBottomOf="@id/languageLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/englishButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/englishButton"
+        app:layout_constraintTop_toBottomOf="@id/languageLabel"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Výběr tématu -->
+    <TextView
+        android:id="@+id/themeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/theme_label"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/czechButton"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <Spinner
+        android:id="@+id/themeSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:entries="@array/theme_options"
+        app:layout_constraintTop_toBottomOf="@id/themeLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Přepínač pro animace počasí -->
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/animationsSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/animations_label"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/themeSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Přepínač pro aktivaci služby počasí -->
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/weatherServiceSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/weather_label"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/animationsSwitch"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

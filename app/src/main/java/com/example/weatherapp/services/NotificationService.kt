@@ -4,19 +4,19 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.weatherapp.BuildConfig
 import com.example.weatherapp.R
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.weatherapp.workers.NotificationWorker
+import kotlinx.coroutines.*
 import org.json.JSONObject
 import java.net.URL
 import java.util.*
@@ -43,8 +43,14 @@ class NotificationService : Service(), CoroutineScope {
         interval = if (intent?.getBooleanExtra("debug", false) == true) INTERVAL_DEBUG else INTERVAL_PROD
         Log.d(TAG, "Service started with interval: $interval ms")
 
-        startForeground(1, createNotification("Weather Service", "Fetching weather updates..."))
-        startTimer()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Log.d(TAG, "Using WorkManager for Android 12+")
+            startWithWorkManager()
+        } else {
+            Log.d(TAG, "Using startForeground for Android < 12")
+            startForeground(1, createNotification("Weather Service", "Fetching weather updates..."))
+            startTimer()
+        }
 
         return START_STICKY
     }
@@ -69,7 +75,7 @@ class NotificationService : Service(), CoroutineScope {
                     }
                 }
             }
-        }, 0, interval) // 0 = okamžitý start, interval = opakování
+        }, 0, interval)
     }
 
     private fun stopTimer() {
@@ -124,7 +130,6 @@ class NotificationService : Service(), CoroutineScope {
             .build()
 
         val notificationManager = getSystemService(NotificationManager::class.java)
-        Log.d("NotificationService", "Sending notification with title: $title and message: $message")
         notificationManager?.notify(1, notification)
     }
 
@@ -142,5 +147,12 @@ class NotificationService : Service(), CoroutineScope {
             .setContentText(message)
             .setSmallIcon(R.drawable.ic_weather_notification)
             .build()
+    }
+
+    private fun startWithWorkManager() {
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .addTag("NOTIFICATION_WORKER_TAG")
+            .build()
+        WorkManager.getInstance(this).enqueue(workRequest)
     }
 }

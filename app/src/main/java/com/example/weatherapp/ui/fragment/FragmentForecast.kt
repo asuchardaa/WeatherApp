@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
-import com.example.weatherapp.ui.adapter.Forecast
-import com.example.weatherapp.ui.adapter.ForecastAdapter
+import com.example.weatherapp.ui.adapters.Forecast
+import com.example.weatherapp.ui.adapters.ForecastAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel

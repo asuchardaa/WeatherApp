@@ -1,6 +1,8 @@
 package com.example.weatherapp
 
+import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -13,8 +15,25 @@ import com.example.weatherapp.ui.fragment.FragmentForecast
 import com.example.weatherapp.ui.fragment.FragmentWeather
 import com.example.weatherapp.ui.fragment.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.Locale
 
 class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpdatedListener {
+
+    override fun attachBaseContext(newBase: Context) {
+        // Inicializace `Locale` z preferencí
+        val sharedPreferences = newBase.getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        val language = sharedPreferences.getString("selected_language", "Čeština")
+        val locale = when (language) {
+            "Čeština" -> Locale("cs")
+            "English" -> Locale("en")
+            else -> Locale.getDefault()
+        }
+
+        val config = Configuration(newBase.resources.configuration)
+        config.setLocale(locale)
+        val context = newBase.createConfigurationContext(config)
+        super.attachBaseContext(context)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="25dp"
-    android:background="@drawable/gradient_bg">
+    android:background="@drawable/gradient_purple_bg">
 
     <RelativeLayout
         android:id="@+id/mainContainer"

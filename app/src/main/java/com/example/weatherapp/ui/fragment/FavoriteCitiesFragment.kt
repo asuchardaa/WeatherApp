@@ -9,7 +9,7 @@ import android.widget.ListView
 import androidx.fragment.app.DialogFragment
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
-import com.example.weatherapp.ui.adapter.FavoriteCitiesAdapter
+import com.example.weatherapp.ui.adapters.FavoriteCitiesAdapter
 import com.example.weatherapp.listeners.OnCitySelectedListener
 import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
 

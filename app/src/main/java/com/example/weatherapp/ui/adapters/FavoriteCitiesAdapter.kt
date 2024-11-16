@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.adapter
+package com.example.weatherapp.ui.adapters
 
 import android.content.Context
 import android.util.Log
@@ -9,7 +9,6 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
 

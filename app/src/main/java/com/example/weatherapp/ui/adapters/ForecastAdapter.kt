@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.adapter
+package com.example.weatherapp.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.View
