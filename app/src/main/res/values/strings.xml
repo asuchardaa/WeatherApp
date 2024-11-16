@@ -1,0 +1,59 @@
+<resources>
+    <!-- NASTAVENÍ -->
+    <string name="app_name">WeatherApp</string>
+    <string name="language_label">Jazyk</string>
+    <string name="theme_label">Téma</string>
+    <string name="animations_label">Povolit animace počasí</string>
+    <string name="weather_label">Povolit notifikace</string>
+    <string name="czechButton">Čeština</string>
+    <string name="englishButton">Angličtina</string>
+    <string name="settingsHeader">Nastavení</string>
+    <string name="restart_required_title">Restart aplikace</string>
+    <string name="restart_required_message">Pro změnu jazyka je třeba restartovat aplikaci. Chcete nyní restartovat?</string>
+    <string name="restart_now">Restartovat</string>
+    <string name="cancel">Zrušit</string>
+    <string-array name="theme_options">
+        <item>Světlý</item>
+        <item>Tmavý</item>
+    </string-array>
+
+    <!-- POČASÍ -->
+    <string name="citySearch">Zadejte město</string>
+    <string name="locationIcon">Použít polohu</string>
+    <string name="homeIcon">Domů</string>
+    <string name="favoriteIcon">Oblíbené</string>
+    <string name="address">Praha, CZ</string>
+    <string name="updated_at">20. dubna 2012, 20:08</string>
+    <string name="status">Jasná obloha</string>
+    <string name="temp">29°C</string>
+    <string name="temp_min">Minimální teplota: 05:05</string>
+    <string name="temp_max">Maximální teplota: 05:05</string>
+    <string name="sunrise">Východ slunce</string>
+    <string name="time_sunrise">06:40</string>
+    <string name="sunset">Západ slunce</string>
+    <string name="time_sunset">18:40</string>
+    <string name="wind">Vítr</string>
+    <string name="time_wind">06:40</string>
+    <string name="pressure">Tlak</string>
+    <string name="time_pressure">06:40</string>
+    <string name="humidity">Vlhkost</string>
+    <string name="time_humidity">06:40</string>
+    <string name="clouds">Oblačnost</string>
+    <string name="value_clouds">83</string>
+    <string name="errorText">Něco se pokazilo</string>
+    <string name="favorites_empty">Nemáte žádná oblíbená města</string>
+    <string name="city_input_hint">Zadejte město, zemi</string>
+    <string name="invalid_city">Neplatný formát města. Použijte "Město, Kód země".</string>
+    <string name="gps_timeout">GPS čas vypršel. Používám předchozí město.</string>
+    <string name="gps_no_location">Nemůžeme najít vaši polohu. Zadejte město ručně.</string>
+    <string name="select_city">Vyberte město</string>
+    <string name="favorite_added">přidáno do oblíbených</string>
+    <string name="favorite_removed">odebráno z oblíbených</string>
+    <string name="fetching_weather">Načítám data o počasí...</string>
+    <string name="network_error">Chyba sítě</string>
+    <string name="no_connection">Žádné připojení k internetu!</string>
+    <string name="no_permission">Povolení zamítnuto</string>
+
+
+
+</resources>
