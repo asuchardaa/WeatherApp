@@ -1,7 +1,11 @@
 package com.example.weatherapp
 
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.listeners.OnCitySelectedListener
 import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
@@ -15,6 +19,8 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Nastavení navigace
         val bottomNav: BottomNavigationView = findViewById(R.id.bottom_navigation)
         bottomNav.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -40,10 +46,41 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
                 .commit()
 
             bottomNav.selectedItemId = R.id.nav_weather
-
         }
 
+        // Oprávnění pro notifikace
+        requestNotificationPermission()
+    }
 
+    private fun requestNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("Permission", "POST_NOTIFICATIONS permission granted.")
+            } else {
+                Log.d("Permission", "POST_NOTIFICATIONS permission denied.")
+            }
+        }
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -58,7 +95,6 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
     }
 
     override fun onFavoritesUpdated() {
-        // Najděte FragmentWeather a zavolejte updateStarIcon
         val fragment = supportFragmentManager.findFragmentById(R.id.mainContainer)
         if (fragment is FragmentWeather) {
             fragment.updateStarIcon()

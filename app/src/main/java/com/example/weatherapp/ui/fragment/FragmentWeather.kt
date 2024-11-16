@@ -1,9 +1,7 @@
 package com.example.weatherapp.ui.fragment
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.os.Bundle
@@ -24,6 +22,7 @@ import android.widget.Toast
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
+import com.google.android.gms.location.LocationServices
 import android.location.LocationManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -33,6 +32,8 @@ import android.Manifest
 import android.os.Handler
 import android.os.Looper
 import android.view.animation.AnimationUtils
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
 import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
@@ -58,11 +59,9 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
     private lateinit var locationIcon: ImageView
     private lateinit var locationManager: LocationManager
 
-
     private val gpsTimeoutHandler = Handler(Looper.getMainLooper())
     private var gpsTimeoutRunnable: Runnable? = null
     private val locationPermissionCode = 2
-    private val handler = Handler(Looper.getMainLooper())
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -84,19 +83,11 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         locationIcon = view.findViewById(R.id.locationIcon)
         locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        // Nastavení klikací události pro ikonu geolokace
         locationIcon.setOnClickListener {
             getCurrentLocation()
         }
 
-        // Inicializace ikony geolokace při spuštění
         updateGpsIcon()
-
-        // Zkontrolujte stav GPS při obnovení fragmentu
-        /*requireActivity().registerReceiver(
-            gpsStatusReceiver,
-            IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
-        )*/
 
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().remove("city").apply()
@@ -137,6 +128,7 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
 
             fetchData()
             citySearch.clearFocus()
+            citySearch.setText("")
 
             updateStarIcon()
         }
@@ -243,34 +235,90 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
     }
 
     private fun fetchData() {
-        WeatherTask().execute()
         val cachedData = weatherDatabase.getCurrentWeather(CITY, COUNTRY)
         if (cachedData != null) {
+            // Nejprve zobrazíme uložená data
             updateUIWithWeatherData(cachedData)
-        } else {
-            WeatherTask().execute()
         }
+
+        // Vždy se pokusíme načíst nová data
+        WeatherTask().execute()
     }
 
     private fun getCurrentLocation() {
+        Log.d("GPS_FW", "Starting getCurrentLocation()")
+
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionCode)
+            Log.d("GPS_FW", "Permission not granted. Requesting permission...")
+
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                locationPermissionCode
+            )
         } else {
+            Log.d("GPS_FW", "Permission granted. Starting GPS updates...")
+
             locationIcon.setImageResource(R.drawable.gps_not_fixed)
             startGpsLoaderAnimation()
 
             gpsTimeoutRunnable = Runnable {
+                Log.d("GPS_FW", "GPS timeout reached. Stopping location updates.")
                 stopGpsLoaderAnimation()
                 locationManager.removeUpdates(locationListener)
-                showErrorAndReturn()
-            }
-            gpsTimeoutHandler.postDelayed(gpsTimeoutRunnable!!, 10000)
 
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, locationListener)
+                Log.d("GPS_FW", "Attempting to fetch last known location.")
+                fetchLastKnownLocation()
+            }
+            gpsTimeoutHandler.postDelayed(gpsTimeoutRunnable!!, 20000)
+
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                1000, // Aktualizace každou sekundu
+                1f    // Minimální změna polohy 1 metr
+            ) { location ->
+                Log.d("GPS_FW", "Location update received: Lat=${location.latitude}, Lon=${location.longitude}")
+                gpsTimeoutHandler.removeCallbacks(gpsTimeoutRunnable!!)
+                stopGpsLoaderAnimation()
+                fetchNearestCityFromLocation(location)
+            }
+        }
+    }
+
+    private fun fetchLastKnownLocation() {
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Oprávnění uděleno, pokračujeme v získání poslední známé polohy
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    Log.d("GPS_FW", "Last known location found: Lat=${location.latitude}, Lon=${location.longitude}")
+                    fetchNearestCityFromLocation(location)
+                } else {
+                    Log.d("GPS_FW", "No last known location available.")
+                    showManualCitySelectionDialog()
+                }
+            }.addOnFailureListener { e ->
+                Log.e("GPS_FW", "Failed to get last known location: ${e.message}")
+                showManualCitySelectionDialog()
+            }
+        } else {
+            // Oprávnění nebylo uděleno, požádáme o něj
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                locationPermissionCode
+            )
         }
     }
 
     private val locationListener = LocationListener { location ->
+        Log.d("GPS_FW", "Location update received: Lat=${location.latitude}, Lon=${location.longitude}")
+
         locationIcon.setImageResource(R.drawable.gps_fixed)
         gpsTimeoutHandler.removeCallbacks(gpsTimeoutRunnable!!)
         stopGpsLoaderAnimation()
@@ -278,19 +326,61 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
     }
 
     private fun fetchNearestCityFromLocation(location: Location) {
+        Log.d("GPS_FW", "Fetching nearest city for location: Lat=${location.latitude}, Lon=${location.longitude}")
+
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+        val addresses = try {
+            geocoder.getFromLocation(location.latitude, location.longitude, 5)
+        } catch (e: Exception) {
+            Log.e("GPS_FW", "Error using Geocoder: ${e.message}")
+            null
+        }
 
         if (addresses != null && addresses.isNotEmpty()) {
-            val cityName = addresses[0].locality ?: "Unknown"
-            val countryName = addresses[0].countryCode ?: "Unknown"
+            Log.d("GPS_FW", "Geocoder returned ${addresses.size} results.")
 
-            if (cityName != "Unknown") {
-                // Aktualizujeme CITY a COUNTRY
-                CITY = cityName
-                COUNTRY = countryName
+            val cityList = addresses.mapNotNull { address ->
+                val cityName = address.locality ?: "Unknown"
+                val countryName = address.countryCode ?: "Unknown"
+                if (cityName != "Unknown") "$cityName, $countryName" else null
+            }
 
-                // Uložení města a země do SharedPreferences
+            if (cityList.isNotEmpty()) {
+                Log.d("GPS_FW", "Valid cities found: $cityList")
+                showCitySelectionDialog(cityList)
+            } else {
+                Log.d("GPS_FW", "No valid cities found in Geocoder results.")
+                showManualCitySelectionDialog()
+            }
+        } else {
+            Log.d("GPS_FW", "Geocoder returned no results.")
+            showManualCitySelectionDialog()
+        }
+    }
+
+
+
+    private fun showManualCitySelectionDialog() {
+        Log.d("GPS_FW", "Displaying manual city selection dialog.")
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Select City")
+        builder.setMessage("We couldn't detect your location. Please enter a city manually.")
+
+        val input = EditText(requireContext())
+        input.hint = "Enter city, country"
+        builder.setView(input)
+
+        builder.setPositiveButton("OK") { _, _ ->
+            val selectedCity = input.text.toString()
+            Log.d("GPS_FW", "Manual city input: $selectedCity")
+
+            if (selectedCity.contains(",")) {
+                CITY = selectedCity.substringBefore(",").trim()
+                COUNTRY = selectedCity.substringAfter(",").trim()
+
+                Log.d("GPS_FW", "Parsed city: $CITY, country: $COUNTRY")
+
                 val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
                 with(sharedPreferences.edit()) {
                     putString("selected_city", CITY)
@@ -298,16 +388,54 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                     apply()
                 }
 
-                // Skryjeme loader a načteme nová data
-                stopGpsLoaderAnimation()
                 fetchData()
             } else {
-                showErrorAndReturn()
+                Log.d("GPS_FW", "Invalid city input. Prompting user again.")
+                Toast.makeText(requireContext(), "Invalid city format. Use 'City, Country'.", Toast.LENGTH_SHORT).show()
+                restorePreviousCity()
             }
-        } else {
-            showErrorAndReturn()
         }
+
+        builder.setNegativeButton("Cancel") { _, _ ->
+            Log.d("GPS_FW", "Manual city selection canceled.")
+            restorePreviousCity()
+        }
+        builder.show()
     }
+
+
+
+
+    private fun showCitySelectionDialog(cityList: List<String>) {
+        Log.d("GPS_FW", "Displaying city selection dialog with options: $cityList")
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Select a City")
+        builder.setItems(cityList.toTypedArray()) { _, which ->
+            val selectedCity = cityList[which]
+            Log.d("GPS_FW", "User selected city: $selectedCity")
+
+            CITY = selectedCity.substringBefore(",").trim()
+            COUNTRY = selectedCity.substringAfter(",").trim()
+
+            Log.d("GPS_FW", "Parsed city: $CITY, country: $COUNTRY")
+
+            val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+            with(sharedPreferences.edit()) {
+                putString("selected_city", CITY)
+                putString("selected_country", COUNTRY)
+                apply()
+            }
+
+            fetchData()
+        }
+        builder.setNegativeButton("Cancel") { _, _ ->
+            Log.d("GPS_FW", "City selection canceled.")
+            restorePreviousCity()
+        }
+        builder.show()
+    }
+
 
     private fun isCityInFavorites(city: String, country: String): Boolean {
         val favoriteCities = weatherDatabase.getAllFavoriteCities()
@@ -321,16 +449,34 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         citySearch.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, starIcon, 0)
     }
 
-    private fun showErrorAndReturn() {
-        handler.post {
-            Toast.makeText(requireContext(), "GPS timeout: město nebylo nalezeno.", Toast.LENGTH_SHORT).show()
-            stopGpsLoaderAnimation() // Zastaví animaci a skryje tmavou vrstvu
-            locationManager.removeUpdates(locationListener)
+    private fun showErrorAndReturn(lastKnownLocation: Location?) {
+        Log.d("GPS_FW", "Error occurred or timeout. Attempting to show nearest cities.")
+
+        if (lastKnownLocation != null) {
+            // Získáme souřadnice z poslední známé lokace
+            val latitude = lastKnownLocation.latitude
+            val longitude = lastKnownLocation.longitude
+
+            // Vypíšeme souřadnice pro ladění
+            Toast.makeText(
+                requireContext(),
+                "GPS timeout. Last known location: Lat=$latitude, Lon=$longitude",
+                Toast.LENGTH_LONG
+            ).show()
+
+            // Nabídneme výběr města
+            fetchNearestCityFromLocation(lastKnownLocation)
+        } else {
+            // Pokud nejsou dostupné souřadnice, vrátíme se k předchozímu městu
+            Toast.makeText(requireContext(), "GPS timeout. Using the previous city.", Toast.LENGTH_SHORT).show()
             restorePreviousCity()
         }
     }
 
+
     private fun restorePreviousCity() {
+        Log.d("GPS_FW", "Restoring previous city.")
+
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
         COUNTRY = sharedPreferences.getString("selected_country", "CZ") ?: "CZ"
@@ -339,12 +485,15 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
 
     private fun updateGpsIcon() {
         val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        Log.d("GPS_FW", "Updating GPS icon. GPS Enabled: $isGpsEnabled")
         locationIcon.setImageResource(
             if (isGpsEnabled) R.drawable.gps_not_fixed else R.drawable.gps_off
         )
     }
 
     private fun startGpsLoaderAnimation() {
+        Log.d("GPS_FW", "Starting GPS loader animation.")
+
         val gpsLoaderIcon = activity?.findViewById<ImageView>(R.id.gps_loader_icon)
         gpsLoaderIcon?.visibility = View.VISIBLE
         val rotateAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_gps)
@@ -353,6 +502,8 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
     }
 
     private fun stopGpsLoaderAnimation() {
+        Log.d("GPS_FW", "Stopping GPS loader animation.")
+
         val gpsLoaderIcon = activity?.findViewById<ImageView>(R.id.gps_loader_icon)
         gpsLoaderIcon?.clearAnimation()
         gpsLoaderIcon?.visibility = View.GONE
@@ -410,7 +561,7 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                     "Updated at: " + SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(
                         Date(updatedAt * 1000)
                     )
-                val temp = main.getString("temp") + "°C"
+                val temp = Math.round(main.getDouble("temp")).toString() + "°C"
                 val tempMin = "Min Temp: " + main.getString("temp_min") + "°C"
                 val tempMax = "Max Temp: " + main.getString("temp_max") + "°C"
                 val sunrise: Long = sys.getLong("sunrise")
@@ -459,26 +610,35 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         }
 
         override fun doInBackground(vararg params: String?): String? {
-            var response: String?
-            try {
-                response =
-                    URL("https://api.openweathermap.org/data/2.5/weather?q=$CITY,$COUNTRY&units=metric&appid=$API").readText(
-                        Charsets.UTF_8
-                    )
+            return try {
+                val apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=$CITY,$COUNTRY&units=metric&appid=$API"
+                val response = URL(apiUrl).readText(Charsets.UTF_8)
+
+                weatherDatabase.insertOrUpdateCurrentWeather(CITY, COUNTRY, response)
+                response
             } catch (e: Exception) {
-                response = null
+                Log.e("WeatherTask", "Error fetching weather data: ${e.message}")
+                null
             }
-            return response
         }
 
         override fun onPostExecute(result: String?) {
             if (result != null) {
-                weatherDatabase.insertOrUpdateCurrentWeather(CITY, COUNTRY, result)
+                // Aktualizovat UI s novými daty
                 updateUIWithWeatherData(result)
             } else {
-                errorText.visibility = View.VISIBLE
-                loader.visibility = View.GONE
+                // V případě chyby zobrazíme uložená data
+                val cachedData = weatherDatabase.getCurrentWeather(CITY, COUNTRY)
+                if (cachedData != null) {
+                    updateUIWithWeatherData(cachedData)
+                    Toast.makeText(requireContext(), "No internet connection. Showing cached data.", Toast.LENGTH_SHORT).show()
+                } else {
+                    errorText.visibility = View.VISIBLE
+                    loader.visibility = View.GONE
+                    Toast.makeText(requireContext(), "Failed to load weather data.", Toast.LENGTH_SHORT).show()
+                }
             }
+            loader.visibility = View.GONE
         }
     }
 }

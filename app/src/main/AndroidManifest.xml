@@ -5,17 +5,29 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/weather_icon"
-        android:label=""
+        android:label="Weather App"
         android:roundIcon="@drawable/weather_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar"
         tools:targetApi="31">
+
+        <service
+            android:name=".services.NotificationService"
+            android:label="@string/app_name"
+            android:foregroundServiceType="location|dataSync"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.weatherapp.services.NotificationService"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </service>
 
         <activity
             android:name=".MainActivity"

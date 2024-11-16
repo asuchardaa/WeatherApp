@@ -63,24 +63,25 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="16dp"
+            android:paddingTop="30dp"
             app:columnCount="1"
-            app:rowCount="7"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/obsTimeTextView">
+            app:layout_constraintTop_toBottomOf="@id/obsTimeTextView"
+            app:rowCount="6">
 
             <!-- Pocitová teplota -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:backgroundTint="#3CF1EBF1"
                 android:background="@android:color/transparent"
-                app:cardElevation="0dp"
-                app:cardCornerRadius="12dp">
+                android:backgroundTint="#3CF1EBF1"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
 
-            <LinearLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
@@ -91,7 +92,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_altitude"
-                        app:tint="@color/white"/>
+                        app:tint="@color/white" />
 
                     <TextView
                         android:id="@+id/feelsLikeTextView"
@@ -109,9 +110,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                app:cardCornerRadius="12dp"
-                android:backgroundTint="#3CF1EBF1"
                 android:background="@android:color/transparent"
+                android:backgroundTint="#3CF1EBF1"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -125,7 +126,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_humidity"
-                        app:tint="@color/white"/>
+                        app:tint="@color/white" />
 
                     <TextView
                         android:id="@+id/humidityTextView"
@@ -143,9 +144,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                app:cardCornerRadius="12dp"
-                android:backgroundTint="#3CF1EBF1"
                 android:background="@android:color/transparent"
+                android:backgroundTint="#3CF1EBF1"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -159,7 +160,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_wind"
-                        app:tint="@color/white"/>
+                        app:tint="@color/white" />
 
                     <TextView
                         android:id="@+id/windSpeedTextView"
@@ -177,9 +178,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                app:cardCornerRadius="12dp"
-                android:backgroundTint="#3CF1EBF1"
                 android:background="@android:color/transparent"
+                android:backgroundTint="#3CF1EBF1"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -193,7 +194,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_pressure"
-                        app:tint="@color/white"/>
+                        app:tint="@color/white" />
 
                     <TextView
                         android:id="@+id/pressureTextView"
@@ -211,9 +212,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                app:cardCornerRadius="12dp"
-                android:backgroundTint="#3CF1EBF1"
                 android:background="@android:color/transparent"
+                android:backgroundTint="#3CF1EBF1"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp">
 
                 <LinearLayout
@@ -227,7 +228,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_rain"
-                        app:tint="@color/white"/>
+                        app:tint="@color/white" />
 
                     <TextView
                         android:id="@+id/precipTextView"
@@ -235,74 +236,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:text="Precipitation: -- mm"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Nadmořská výška -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="12dp"
-                android:backgroundTint="#3CF1EBF1"
-                android:background="@android:color/transparent"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_altitude"
-                        app:tint="@color/white"/>
-
-                    <TextView
-                        android:id="@+id/elevTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:text="Elevation: -- m"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- UV RISK -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="12dp"
-                android:backgroundTint="#3CF1EBF1"
-                android:background="@android:color/transparent"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/uv_index"
-                        app:tint="@color/white"/>
-
-                    <TextView
-                        android:id="@+id/uvTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:text="UV Index: 0"
                         android:textColor="@color/white"
                         android:textSize="18sp" />
                 </LinearLayout>

@@ -68,6 +68,7 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
             val db = writableDatabase
             val sql = "INSERT OR REPLACE INTO $TABLE_CURRENT_WEATHER ($COLUMN_CITY, $COLUMN_COUNTRY, $COLUMN_DATA) VALUES (?, ?, ?)"
             db.execSQL(sql, arrayOf(city, country, data))
+            Log.d("DatabaseDebug", "Weather data inserted/updated for city: $city, country: $country")
         } catch (e: Exception) {
             Log.e("DatabaseError", "Error saving current weather data: ${e.message}")
         }
@@ -83,6 +84,7 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
             }
             null
         } catch (e: Exception) {
+            Log.e("DatabaseError", "Error fetching current weather: ${e.message}")
             null
         }
     }
