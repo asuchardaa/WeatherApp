@@ -27,7 +27,7 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FragmentForecast : Fragment() {
+class ForecastFragment : Fragment() {
     private lateinit var weatherDatabase: WeatherDatabase
     private lateinit var loader: ProgressBar
     private lateinit var mainContainer: RelativeLayout
@@ -37,7 +37,7 @@ class FragmentForecast : Fragment() {
     private lateinit var updatedAt: TextView
     private lateinit var forecastRecyclerView: RecyclerView
 
-    private var fragmentWeather = FragmentWeather()
+    private var fragmentWeather = WeatherFragment()
     private var CITY = fragmentWeather.CITY
     private var COUNTRY = fragmentWeather.COUNTRY
     private val API = fragmentWeather.API
@@ -83,12 +83,12 @@ class FragmentForecast : Fragment() {
         try {
             val response = URL("https://api.openweathermap.org/data/2.5/forecast?q=$CITY,$COUNTRY&units=metric&appid=$API").readText()
             weatherDatabase.insertOrUpdateForecastWeather(CITY, COUNTRY, response)
-            Log.e("FragmentForecast", "Response: $response")
+            Log.e("ForecastFragment", "Response: $response")
             withContext(Dispatchers.Main) {
                 updateUIWithForecastData(response)
             }
         } catch (e: Exception) {
-            Log.e("FragmentForecast", "Error fetching forecast data: ${e.message}")
+            Log.e("ForecastFragment", "Error fetching forecast data: ${e.message}")
             withContext(Dispatchers.Main) {
                 showError("Nastala chyba při načítání počasí. Zkontrolujte připojení k internetu.")
             }

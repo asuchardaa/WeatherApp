@@ -11,8 +11,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.listeners.OnCitySelectedListener
 import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
-import com.example.weatherapp.ui.fragment.FragmentForecast
-import com.example.weatherapp.ui.fragment.FragmentWeather
+import com.example.weatherapp.ui.fragment.ForecastFragment
+import com.example.weatherapp.ui.fragment.WeatherFragment
 import com.example.weatherapp.ui.fragment.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Locale
@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
         bottomNav.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_weather -> {
-                    loadFragment(FragmentWeather())
+                    loadFragment(WeatherFragment())
                     true
                 }
                 R.id.nav_forecast -> {
-                    loadFragment(FragmentForecast())
+                    loadFragment(ForecastFragment())
                     true
                 }
                 R.id.nav_settings -> {
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.mainContainer, FragmentWeather())
+                .replace(R.id.mainContainer, WeatherFragment())
                 .commit()
 
             bottomNav.selectedItemId = R.id.nav_weather
@@ -109,13 +109,13 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
     }
 
     override fun onCitySelected(city: String, country: String) {
-        val fragmentWeather = supportFragmentManager.findFragmentById(R.id.mainContainer) as? FragmentWeather
+        val fragmentWeather = supportFragmentManager.findFragmentById(R.id.mainContainer) as? WeatherFragment
         fragmentWeather?.onCitySelected(city, country)
     }
 
     override fun onFavoritesUpdated() {
         val fragment = supportFragmentManager.findFragmentById(R.id.mainContainer)
-        if (fragment is FragmentWeather) {
+        if (fragment is WeatherFragment) {
             fragment.updateStarIcon()
         }
     }

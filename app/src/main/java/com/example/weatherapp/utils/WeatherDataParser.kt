@@ -1,5 +1,9 @@
 package com.example.weatherapp.utils
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
+import com.example.weatherapp.R
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -11,21 +15,29 @@ class WeatherDataParser(private val data: String) {
     private val sys = jsonObj.getJSONObject("sys")
     private val weather = jsonObj.getJSONArray("weather").getJSONObject(0)
 
-    fun getUpdatedAtText(): String {
+
+    fun getUpdatedAtText(context: Context): String {
         val updatedAt: Long = jsonObj.getLong("dt")
-        return "Aktualizováno: " + SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(updatedAt * 1000))
+        val updateAtString = context.getString(R.string.updated_at) + ": " +
+                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(updatedAt * 1000))
+        return updateAtString
     }
+
 
     fun getTemperature(): String {
         return "${Math.round(main.getDouble("temp"))}°C"
     }
 
-    fun getMinTemperature(): String {
-        return "Minimální teplota: ${Math.round(main.getDouble("temp_min"))}°C"
+    fun getMinTemperature(context: Context): String {
+        val minTemp = main.getDouble("temp_min")
+        val minTempString = context.getString(R.string.min_temp) + ": " + minTemp + "°C"
+        return minTempString
     }
 
-    fun getMaxTemperature(): String {
-        return "Maximální teplota: ${Math.round(main.getDouble("temp_max"))}°C"
+    fun getMaxTemperature(context: Context): String {
+        val maxTemp = main.getDouble("temp_max")
+        val maxTempString = context.getString(R.string.max_temp) + ": " + maxTemp + "°C"
+        return maxTempString
     }
 
     fun getSunrise(): String {
@@ -54,8 +66,13 @@ class WeatherDataParser(private val data: String) {
         return "${jsonObj.getJSONObject("clouds").getString("all")}%"
     }
 
-    fun getWeatherDescription(): String {
+    fun getWeatherDescription(language: String): String {
         val description = weather.getString("description")
-        return WeatherDescriptionTranslator.translate(description).capitalize(Locale.getDefault())
+        val locale = Locale(language)
+        return WeatherDescriptionTranslator.translate(description, locale)
     }
+
+
+
+
 }

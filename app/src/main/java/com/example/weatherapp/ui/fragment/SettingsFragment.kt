@@ -29,6 +29,11 @@ class SettingsFragment : Fragment() {
     private lateinit var themeSpinner: Spinner
     private lateinit var themeAdapter: ThemeAdapter
 
+    companion object {
+        var selectedLanguage: String = Locale.getDefault().language
+    }
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.settings_fragment, container, false)
     }
@@ -112,13 +117,16 @@ class SettingsFragment : Fragment() {
     private fun updateLocale(language: String) {
         val locale = Locale(language)
         Locale.setDefault(locale)
-        val config = Configuration(requireContext().resources.configuration)
+        selectedLanguage = language
+
+        val config = requireContext().resources.configuration
         config.setLocale(locale)
         requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
 
         savePreference("selected_language", language)
         Log.d("SettingsFragment", "Locale updated to: $language")
     }
+
 
     private fun restartApplication() {
         val intent = Intent(requireContext(), MainActivity::class.java)
@@ -149,7 +157,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun saveServiceState(isEnabled: Boolean) {
-        val sharedPreferences = requireActivity().getSharedPreferences("WeatherServicePrefs", Context.MODE_PRIVATE)
+        val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().putBoolean("service_enabled", isEnabled).apply()
     }
 }

@@ -77,8 +77,8 @@ class FavoriteCitiesFragment : DialogFragment() {
         val window = dialog?.window
         if (window != null) {
             val params = window.attributes
-            params.width = (resources.displayMetrics.widthPixels * 0.9).toInt() // 90% šířky obrazovky
-            params.height = ViewGroup.LayoutParams.WRAP_CONTENT // Výška přizpůsobená obsahu
+            params.width = (resources.displayMetrics.widthPixels * 0.9).toInt()
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT
             window.attributes = params
         }
     }

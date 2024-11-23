@@ -23,11 +23,11 @@
     <string name="homeIcon">Domů</string>
     <string name="favoriteIcon">Oblíbené</string>
     <string name="address">Praha, CZ</string>
-    <string name="updated_at">20. dubna 2012, 20:08</string>
     <string name="status">Jasná obloha</string>
-    <string name="temp">29°C</string>
-    <string name="temp_min">Minimální teplota: 05:05</string>
-    <string name="temp_max">Maximální teplota: 05:05</string>
+    <string name="updated_at">Naposledy aktualizováno:</string>
+    <string name="min_temp">Min. teplota</string>
+    <string name="max_temp">Max. teplota</string>
+    <string name="temp">Teplota:</string>
     <string name="sunrise">Východ slunce</string>
     <string name="time_sunrise">06:40</string>
     <string name="sunset">Západ slunce</string>

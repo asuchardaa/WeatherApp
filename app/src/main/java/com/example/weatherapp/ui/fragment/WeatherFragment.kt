@@ -38,7 +38,6 @@ import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
 import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
 import com.example.weatherapp.utils.WeatherDataParser
-import com.example.weatherapp.utils.WeatherDescriptionTranslator
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
@@ -47,7 +46,7 @@ import java.util.*
 
 
 @Suppress("DEPRECATION")
-class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
+class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
     var CITY = "Prague"
     var COUNTRY = "CZ"
     val API = BuildConfig.API_KEY
@@ -60,6 +59,7 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
     private lateinit var citySearch: AutoCompleteTextView
     private lateinit var locationIcon: ImageView
     private lateinit var locationManager: LocationManager
+    private val language = SettingsFragment.selectedLanguage
 
     private val gpsTimeoutHandler = Handler(Looper.getMainLooper())
     private var gpsTimeoutRunnable: Runnable? = null
@@ -88,12 +88,13 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         locationIcon.contentDescription = getString(R.string.locationIcon)
         errorText.text = getString(R.string.errorText)
         favoriteHeartIcon.contentDescription = getString(R.string.favoriteIcon)
+
         view?.findViewById<TextView>(R.id.address)?.text = getString(R.string.address)
         view?.findViewById<TextView>(R.id.updated_at)?.text = getString(R.string.updated_at)
         view?.findViewById<TextView>(R.id.status)?.text = getString(R.string.status)
         view?.findViewById<TextView>(R.id.temp)?.text = getString(R.string.temp)
-        view?.findViewById<TextView>(R.id.temp_min)?.text = getString(R.string.temp_min)
-        view?.findViewById<TextView>(R.id.temp_max)?.text = getString(R.string.temp_max)
+        view?.findViewById<TextView>(R.id.temp_min)?.text = getString(R.string.min_temp)
+        view?.findViewById<TextView>(R.id.temp_max)?.text = getString(R.string.max_temp)
         view?.findViewById<TextView>(R.id.sunrise)?.text = getString(R.string.sunrise)
         view?.findViewById<TextView>(R.id.sunset)?.text = getString(R.string.sunset)
         view?.findViewById<TextView>(R.id.wind)?.text = getString(R.string.wind)
@@ -197,8 +198,6 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                 .commit()
         }
 
-
-
         fetchData()
     }
 
@@ -231,7 +230,7 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                     adapter.notifyDataSetChanged()
                 }
             } catch (e: Exception) {
-                Log.e("FragmentWeather", "Error fetching city suggestions", e)
+                Log.e("WeatherFragment", "Error fetching city suggestions", e)
             }
         }
     }
@@ -247,7 +246,7 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                 cities.add("$name, $country")
             }
         } catch (e: Exception) {
-            Log.e("FragmentWeather", "Error parsing city suggestions", e)
+            Log.e("WeatherFragment", "Error parsing city suggestions", e)
         }
         return cities.toList()
     }
@@ -259,9 +258,9 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
             updateUIWithWeatherData(cachedData)
         }
 
-        // Vždy se pokusíme načíst nová data
         WeatherTask().execute()
     }
+
 
     private fun getCurrentLocation() {
         Log.d("GPS_FW", "Starting getCurrentLocation()")
@@ -376,8 +375,6 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
-
-
     private fun showManualCitySelectionDialog() {
         Log.d("GPS_FW", "Displaying manual city selection dialog.")
 
@@ -421,9 +418,6 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         builder.show()
     }
 
-
-
-
     private fun showCitySelectionDialog(cityList: List<String>) {
         Log.d("GPS_FW", "Displaying city selection dialog with options: $cityList")
 
@@ -454,7 +448,6 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         builder.show()
     }
 
-
     private fun isCityInFavorites(city: String, country: String): Boolean {
         val favoriteCities = weatherDatabase.getAllFavoriteCities()
         val cityWithCountry = "$city, $country"
@@ -466,31 +459,6 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         val starIcon = if (isFavorite) R.drawable.ic_star_filled else R.drawable.ic_star
         citySearch.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, starIcon, 0)
     }
-
-    private fun showErrorAndReturn(lastKnownLocation: Location?) {
-        Log.d("GPS_FW", "Error occurred or timeout. Attempting to show nearest cities.")
-
-        if (lastKnownLocation != null) {
-            // Získáme souřadnice z poslední známé lokace
-            val latitude = lastKnownLocation.latitude
-            val longitude = lastKnownLocation.longitude
-
-            // Vypíšeme souřadnice pro ladění
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.gps_timeout) + " Lat: $latitude, Lon: $longitude",
-                Toast.LENGTH_LONG
-            ).show()
-
-            // Nabídneme výběr města
-            fetchNearestCityFromLocation(lastKnownLocation)
-        } else {
-            // Pokud nejsou dostupné souřadnice, vrátíme se k předchozímu městu
-            Toast.makeText(requireContext(), getString(R.string.gps_timeout), Toast.LENGTH_SHORT).show()
-            restorePreviousCity()
-        }
-    }
-
 
     private fun restorePreviousCity() {
         Log.d("GPS_FW", "Restoring previous city.")
@@ -557,6 +525,7 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
         super.onResume()
         updateGpsIcon()
         updateStarIcon()
+        fetchData()
     }
 
     override fun onDestroyView() {
@@ -575,18 +544,14 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                 val sys = jsonObj.getJSONObject("sys")
                 val weather = jsonObj.getJSONArray("weather").getJSONObject(0)
                 val updatedAt: Long = jsonObj.getLong("dt")
+                val parser = WeatherDataParser(data)
+                Log.d("WeatherDataParser", "Current language: $language")
 
-                // Získání aktuálního jazyka zařízení
-                val currentLanguage = Locale.getDefault().language
-
-                if (currentLanguage == "en") {
-                    val updatedAtText =
-                        "Updated at: " + SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(
-                            Date(updatedAt * 1000)
-                        )
+                if (language == "en") {
+                    val updatedAtText = getString(R.string.updated_at) + ": " + SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.ENGLISH).format(Date(updatedAt * 1000))
                     val temp = Math.round(main.getDouble("temp")).toString() + "°C"
-                    val tempMin = "Min Temp: " + main.getString("temp_min") + "°C"
-                    val tempMax = "Max Temp: " + main.getString("temp_max") + "°C"
+                    val tempMin = getString(R.string.min_temp) + ": " + main.getString("temp_min") + "°C"
+                    val tempMax = getString(R.string.max_temp) + ": " + main.getString("temp_max") + "°C"
                     val sunrise: Long = sys.getLong("sunrise")
                     val sunset: Long = sys.getLong("sunset")
                     val wind = jsonObj.getJSONObject("wind").getString("speed")
@@ -597,8 +562,7 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                     // Update UI elements
                     view?.findViewById<TextView>(R.id.address)?.text = "$CITY, $COUNTRY"
                     view?.findViewById<TextView>(R.id.updated_at)?.text = updatedAtText
-                    view?.findViewById<TextView>(R.id.status)?.text =
-                        weather.getString("description").capitalize(Locale.getDefault())
+                    view?.findViewById<TextView>(R.id.status)?.text = parser.getWeatherDescription(language)
                     view?.findViewById<TextView>(R.id.temp)?.text = temp
                     view?.findViewById<TextView>(R.id.temp_min)?.text = tempMin
                     view?.findViewById<TextView>(R.id.temp_max)?.text = tempMax
@@ -610,27 +574,15 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                     view?.findViewById<TextView>(R.id.pressure)?.text = pressure
                     view?.findViewById<TextView>(R.id.humidity)?.text = humidity
                     view?.findViewById<TextView>(R.id.clouds)?.text = clouds
-                } else if (currentLanguage == "cs") {
-                    // Pokud je jazyk čeština, použijeme překlad
+
+                } else if (language == "cs") {
                     val parser = WeatherDataParser(data)
-                    val updatedAtText = "Aktualizováno: " + SimpleDateFormat("dd.MM.yyyy HH:mm", Locale("cs", "CZ")).format(
-                        Date(updatedAt * 1000)
-                    )
-                    val tempMin = "Minimální teplota: " + main.getString("temp_min") + "°C"
-                    val tempMax = "Maximální teplota: " + main.getString("temp_max") + "°C"
 
-                    // Překlad popisu počasí pomocí WeatherDescriptionTranslator
-                    val weatherDescription = WeatherDescriptionTranslator.translate(
-                        weather.getString("description")
-                    ).capitalize(Locale("cs", "CZ"))
-
-                    // Update UI elements
-                    view?.findViewById<TextView>(R.id.address)?.text = "$CITY, $COUNTRY"
-                    view?.findViewById<TextView>(R.id.updated_at)?.text = updatedAtText
-                    view?.findViewById<TextView>(R.id.status)?.text = weatherDescription
+                    view?.findViewById<TextView>(R.id.updated_at)?.text = parser.getUpdatedAtText(requireContext())
+                    view?.findViewById<TextView>(R.id.status)?.text = parser.getWeatherDescription(language)
                     view?.findViewById<TextView>(R.id.temp)?.text = parser.getTemperature()
-                    view?.findViewById<TextView>(R.id.temp_min)?.text = tempMin
-                    view?.findViewById<TextView>(R.id.temp_max)?.text = tempMax
+                    view?.findViewById<TextView>(R.id.temp_min)?.text = parser.getMinTemperature(requireContext())
+                    view?.findViewById<TextView>(R.id.temp_max)?.text = parser.getMaxTemperature(requireContext())
                     view?.findViewById<TextView>(R.id.sunrise)?.text = parser.getSunrise()
                     view?.findViewById<TextView>(R.id.sunset)?.text = parser.getSunset()
                     view?.findViewById<TextView>(R.id.wind)?.text = parser.getWind()
@@ -638,13 +590,12 @@ class FragmentWeather : Fragment(), OnFavoritesUpdatedListener {
                     view?.findViewById<TextView>(R.id.humidity)?.text = parser.getHumidity()
                     view?.findViewById<TextView>(R.id.clouds)?.text = parser.getClouds()
                 }
-
                 mainContainer.visibility = View.VISIBLE
                 loader.visibility = View.GONE
             } catch (e: Exception) {
                 errorText.visibility = View.VISIBLE
                 loader.visibility = View.GONE
-                Log.e("FragmentWeather", "Error parsing weather data: ${e.message}")
+                Log.e("WeatherFragment", "Error parsing weather data: ${e.message}")
             }
         } else {
             errorText.visibility = View.VISIBLE
