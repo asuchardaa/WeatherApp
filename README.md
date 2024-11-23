@@ -23,11 +23,11 @@ Funkce 🚀
 
 *   **Oblíbená města:** Uživatelé mohou ukládat a načítat oblíbená města pro rychlý přístup. ⭐
 
-*   **Změna motivu:** Uživatelé si mohou vybrat mezi 2 preferovanými vizuálními styly. 🌞🌙
+*   **Změna motivu:** Uživatelé si mohou vybrat mezi 2 vizuálními styly. 🌞🌙
 
-*   **Multijazyčná aplikace:** Možnost přepínání mezi různými jazyky pro širší přístupnost. 🌐
+*   **Multijazyčná aplikace:** Možnost přepínání mezi českým a anglickým jazykem. 🌐
 
-*   **Notifikace:** Uživatelé mohou dostávat notifikace o změnách počasí. 📩
+*   **Notifikace:** Uživatelé dostávají každou hodinu notifikace o aktuální teplotě z domácí stanice. 📩
 
 *   **Podpora geolokace:** Uživatelé mohou získat aktuální předpověď počasí pro svou polohu. 📍
 
@@ -47,14 +47,15 @@ Technologie 🛠️
 *   **Personal Weather Station API**: Domácí API pro získávání aktuáních dat o počasí z meteostanice na zahradě. 🌡️ 
 
 Fotky 📸
+---------------
 
-| **Dashboard** | **Forecast** | **Dashboard (Purple Theme)** |
+| **Hlavní stránka** | **Předpověď** | **Oblíbená města**                                                                 |
+|---|---|------------------------------------------------------------------------------------|
+| <img src="app/src/main/res/drawable/dashboard.png" alt="Dashboard" width="250"/> | <img src="app/src/main/res/drawable/forecast.png" alt="Forecast" width="250"/> | <img src="app/src/main/res/drawable/fav_cities.png" alt="fav_cities" width="250"/> |
+
+| **Dashboard (Purple Theme)** | **Nastavení** | **Notifikace** |
 |---|---|---|
-| <img src="app/src/main/res/drawable/dashboard.png" alt="Dashboard" width="250"/> | <img src="app/src/main/res/drawable/forecast.png" alt="Forecast" width="250"/> | <img src="app/src/main/res/drawable/dashboard_purple_theme_en.png" alt="Dashboard Purple Theme" width="250"/> |
-
-| **Settings** | **Notifications** |
-|---|---|
-| <img src="app/src/main/res/drawable/settings.png" alt="Settings" width="250"/> | <img src="app/src/main/res/drawable/notifications.png" alt="Notifications" width="250"/> |
+| <img src="app/src/main/res/drawable/dashboard_purple_theme_en.png" alt="Dashboard Purple Theme" width="250"/> | <img src="app/src/main/res/drawable/settings.png" alt="Settings" width="250"/> | <img src="app/src/main/res/drawable/notifications.png" alt="Notifications" width="250"/> |
 
 Jak spustit ⚙️
 --------------
