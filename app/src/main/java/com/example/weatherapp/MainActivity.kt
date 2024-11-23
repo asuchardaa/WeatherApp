@@ -5,14 +5,15 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.listeners.OnCitySelectedListener
 import com.example.weatherapp.listeners.OnFavoritesUpdatedListener
-import com.example.weatherapp.ui.fragment.FragmentForecast
-import com.example.weatherapp.ui.fragment.FragmentWeather
+import com.example.weatherapp.ui.fragment.ForecastFragment
+import com.example.weatherapp.ui.fragment.WeatherFragment
 import com.example.weatherapp.ui.fragment.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Locale
@@ -35,20 +36,31 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
         super.attachBaseContext(context)
     }
 
+    fun updateThemeForFragments(theme: String) {
+        val fragmentContainer = findViewById<View>(R.id.mainContainer)
+        val backgroundResource = if (theme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
+        fragmentContainer.setBackgroundResource(backgroundResource)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val sharedPreferences = getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        val savedTheme = sharedPreferences.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
+        updateThemeForFragments(savedTheme!!)
+
 
         // Nastavení navigace
         val bottomNav: BottomNavigationView = findViewById(R.id.bottom_navigation)
         bottomNav.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_weather -> {
-                    loadFragment(FragmentWeather())
+                    loadFragment(WeatherFragment())
                     true
                 }
                 R.id.nav_forecast -> {
-                    loadFragment(FragmentForecast())
+                    loadFragment(ForecastFragment())
                     true
                 }
                 R.id.nav_settings -> {
@@ -61,7 +73,7 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.mainContainer, FragmentWeather())
+                .replace(R.id.mainContainer, WeatherFragment())
                 .commit()
 
             bottomNav.selectedItemId = R.id.nav_weather
@@ -109,13 +121,13 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
     }
 
     override fun onCitySelected(city: String, country: String) {
-        val fragmentWeather = supportFragmentManager.findFragmentById(R.id.mainContainer) as? FragmentWeather
+        val fragmentWeather = supportFragmentManager.findFragmentById(R.id.mainContainer) as? WeatherFragment
         fragmentWeather?.onCitySelected(city, country)
     }
 
     override fun onFavoritesUpdated() {
         val fragment = supportFragmentManager.findFragmentById(R.id.mainContainer)
-        if (fragment is FragmentWeather) {
+        if (fragment is WeatherFragment) {
             fragment.updateStarIcon()
         }
     }

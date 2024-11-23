@@ -3,21 +3,19 @@ package com.example.weatherapp.ui.fragment
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.Button
-import android.widget.Spinner
+import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.MainActivity
 import com.example.weatherapp.R
 import com.example.weatherapp.services.NotificationService
-import com.example.weatherapp.utils.ThemeAdapter
 import java.util.*
 
 class SettingsFragment : Fragment() {
@@ -26,8 +24,15 @@ class SettingsFragment : Fragment() {
     private lateinit var animationsSwitch: SwitchCompat
     private lateinit var czechButton: Button
     private lateinit var englishButton: Button
-    private lateinit var themeSpinner: Spinner
-    private lateinit var themeAdapter: ThemeAdapter
+    private lateinit var purpleThemeButton: Button
+    private lateinit var greenThemeButton: Button
+
+    companion object {
+        var selectedLanguage: String = Locale.getDefault().language
+        const val THEME_PURPLE = "gradient_purple_bg"
+        const val THEME_GREEN = "gradient_green_bg"
+        const val PREF_THEME_KEY = "selected_theme"
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.settings_fragment, container, false)
@@ -36,15 +41,17 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        themeAdapter = ThemeAdapter(requireContext())
-
         weatherServiceSwitch = view.findViewById(R.id.weatherServiceSwitch)
         animationsSwitch = view.findViewById(R.id.animationsSwitch)
         czechButton = view.findViewById(R.id.czechButton)
         englishButton = view.findViewById(R.id.englishButton)
-        themeSpinner = view.findViewById(R.id.themeSpinner)
+        purpleThemeButton = view.findViewById(R.id.purpleThemeButton)
+        greenThemeButton = view.findViewById(R.id.greenThemeButton)
 
         val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        val currentTheme = sharedPreferences.getString(PREF_THEME_KEY, THEME_PURPLE)
+        val backgroundResource = if (currentTheme == THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
+        view.setBackgroundResource(backgroundResource)
 
         // Nastavení služby počasí
         val isServiceEnabled = sharedPreferences.getBoolean("service_enabled", false)
@@ -74,27 +81,19 @@ class SettingsFragment : Fragment() {
             showRestartDialog("en")
         }
 
-        // Nastavení tématu
-        val savedTheme = sharedPreferences.getString("selected_theme", ThemeAdapter.THEME_LIGHT)
-        themeSpinner.setSelection(
-            when (savedTheme) {
-                ThemeAdapter.THEME_LIGHT -> 0
-                ThemeAdapter.THEME_DARK -> 1
-                ThemeAdapter.THEME_PURPLE -> 2
-                ThemeAdapter.THEME_GREEN -> 3
-                else -> 0
-            }
-        )
-
-        themeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedTheme = parent?.getItemAtPosition(position).toString()
-                savePreference("selected_theme", selectedTheme)
-                themeAdapter.applyTheme(selectedTheme)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        purpleThemeButton.setOnClickListener {
+            applyTheme(THEME_PURPLE)
         }
+
+        greenThemeButton.setOnClickListener {
+            applyTheme(THEME_GREEN)
+        }
+
+    }
+
+    private fun saveThemePreference(theme: String) {
+        val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putString(PREF_THEME_KEY, theme).apply()
     }
 
     private fun showRestartDialog(language: String) {
@@ -109,16 +108,26 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    private fun applyTheme(theme: String) {
+        saveThemePreference(theme)
+        (requireActivity() as MainActivity).updateThemeForFragments(theme)
+
+        Toast.makeText(requireContext(), "Motiv změněn na ${if (theme == THEME_PURPLE) "Fialový" else "Zelený"}", Toast.LENGTH_SHORT).show()
+    }
+
     private fun updateLocale(language: String) {
         val locale = Locale(language)
         Locale.setDefault(locale)
-        val config = Configuration(requireContext().resources.configuration)
+        selectedLanguage = language
+
+        val config = requireContext().resources.configuration
         config.setLocale(locale)
         requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
 
         savePreference("selected_language", language)
         Log.d("SettingsFragment", "Locale updated to: $language")
     }
+
 
     private fun restartApplication() {
         val intent = Intent(requireContext(), MainActivity::class.java)
@@ -149,7 +158,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun saveServiceState(isEnabled: Boolean) {
-        val sharedPreferences = requireActivity().getSharedPreferences("WeatherServicePrefs", Context.MODE_PRIVATE)
+        val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().putBoolean("service_enabled", isEnabled).apply()
     }
 }

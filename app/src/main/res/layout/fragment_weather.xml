@@ -134,7 +134,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     android:id="@+id/temp_min"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/temp_min"
+                    android:text="@string/min_temp"
                     android:textColor="@color/white" />
 
                 <Space
@@ -145,7 +145,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     android:id="@+id/temp_max"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/temp_max"
+                    android:text="@string/max_temp"
                     android:textColor="@color/white" />
             </LinearLayout>
         </LinearLayout>

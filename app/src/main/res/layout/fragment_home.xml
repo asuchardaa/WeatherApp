@@ -9,6 +9,7 @@
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/gradient_purple_bg"
@@ -19,9 +20,9 @@
             android:id="@+id/cityNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="35dp"
             android:gravity="center"
-            android:text="City Name"
+            android:text="@string/city_name"
             android:textColor="#FFFFFF"
             android:textSize="28sp"
             android:textStyle="bold"
@@ -50,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:gravity="center"
-            android:text="Observation Time: --:--"
+            android:text="@string/observation_time"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -99,7 +100,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Pocitová teplota: --°C"
+                        android:text="@string/pocitov_teplota_c"
                         android:textColor="@color/white"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -120,20 +121,22 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_humidity"
-                        app:tint="@color/white" />
+                        app:tint="@color/white"
+                        tools:ignore="ContentDescription" />
 
                     <TextView
                         android:id="@+id/humidityTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Humidity: --%"
+                        android:text="@string/humidity"
                         android:textColor="@color/white"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -154,7 +157,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                         android:layout_width="32dp"
@@ -167,7 +171,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Wind Speed: -- km/h"
+                        android:text="@string/wind"
                         android:textColor="@color/white"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -188,20 +192,22 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_pressure"
-                        app:tint="@color/white" />
+                        app:tint="@color/white"
+                        tools:ignore="ContentDescription" />
 
                     <TextView
                         android:id="@+id/pressureTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Pressure: -- hPa"
+                        android:text="@string/pressure"
                         android:textColor="@color/white"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -222,20 +228,22 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_rain"
-                        app:tint="@color/white" />
+                        app:tint="@color/white"
+                        tools:ignore="ContentDescription" />
 
                     <TextView
                         android:id="@+id/precipTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Precipitation: -- mm"
+                        android:text="@string/precipitation_mm"
                         android:textColor="@color/white"
                         android:textSize="18sp" />
                 </LinearLayout>

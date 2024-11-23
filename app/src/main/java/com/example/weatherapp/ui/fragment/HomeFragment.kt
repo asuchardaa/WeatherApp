@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.fragment
 
+import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -33,11 +34,14 @@ class HomeFragmentDialog : DialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+        updateTheme()
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateTheme()
 
         temperatureTextView = view.findViewById(R.id.temperatureTextView)
         humidityTextView = view.findViewById(R.id.humidityTextView)
@@ -54,6 +58,18 @@ class HomeFragmentDialog : DialogFragment() {
     private fun fetchTemperatureData() {
         TemperatureTask().execute()
     }
+
+    fun updateTheme() {
+        val sharedPreferencesSettings = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        val currentTheme = sharedPreferencesSettings.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
+        val backgroundResource = if (currentTheme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
+
+        // Najdeme ConstraintLayout v aktuálním pohledu a změníme jeho pozadí
+        val constraintLayout = view?.findViewById<View>(R.id.mainContainer)
+        constraintLayout?.setBackgroundResource(backgroundResource)
+    }
+
+
 
     inner class TemperatureTask : AsyncTask<Void, Void, JSONObject?>() {
         override fun doInBackground(vararg params: Void?): JSONObject? {
@@ -73,10 +89,10 @@ class HomeFragmentDialog : DialogFragment() {
         }
 
         override fun onPostExecute(result: JSONObject?) {
+            updateTheme()
             super.onPostExecute(result)
             if (result != null) {
                 try {
-                    // tady bacha na api response, metric x imperial (lisi se dle jednotek, ale me imo by mohlo stacit metric a zbytek si dobrat sam...)
                     val metric = result.optJSONObject("metric")
                     if (metric != null) {
                         val cityName = result.optString("neighborhood", "Neznámé město")
@@ -88,23 +104,34 @@ class HomeFragmentDialog : DialogFragment() {
                         val pressure = metric.optDouble("pressure", Double.NaN)
                         val precip = metric.optDouble("precipTotal", Double.NaN)
 
+                        // Překlad dle aktuálního jazyka
+                        val language = SettingsFragment.selectedLanguage
+                        if (language == "cs") {
+                            feelsLikeTextView.text = "Pocitová teplota: $feelsLike°C"
+                            obsTimeTextView.text = "Čas měření: $obsTime"
+                            humidityTextView.text = "Vlhkost: $humidity%"
+                            windSpeedTextView.text = "Rychlost větru: $windSpeed km/h"
+                            pressureTextView.text = "Tlak vzduchu: $pressure hPa"
+                            precipTextView.text = "Srážky: $precip mm"
+                        } else {
+                            feelsLikeTextView.text = "Feels like: $feelsLike°C"
+                            obsTimeTextView.text = "Observation time: $obsTime"
+                            humidityTextView.text = "Humidity: $humidity%"
+                            windSpeedTextView.text = "Wind speed: $windSpeed km/h"
+                            pressureTextView.text = "Pressure: $pressure hPa"
+                            precipTextView.text = "Precipitation: $precip mm"
+                        }
                         temperatureTextView.text = "$temp°C"
-                        feelsLikeTextView.text = "Pocitová teplota: $feelsLike°C"
-                        obsTimeTextView.text = "Čas měření: $obsTime"
-                        humidityTextView.text = "Vlhkost: $humidity%"
-                        windSpeedTextView.text = "Rychlost větru: $windSpeed km/h"
-                        pressureTextView.text = "Tlak vzduchu: $pressure hPa"
-                        precipTextView.text = "Srážky: $precip mm"
                         cityNameTextView.text = cityName
                     } else {
-                        Toast.makeText(requireContext(), "Data pro teplotu nejsou dostupná", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Temperature data not available", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     Log.e("HomeFragment", "Error processing data", e)
-                    Toast.makeText(requireContext(), "Chyba při zpracování dat", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Error processing data", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(requireContext(), "Chyba při načítání dat", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error loading data", Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -12,9 +12,11 @@
     <string name="restart_required_message">Application will now be restarted due to new language </string>
     <string name="restart_now">Restart</string>
     <string name="cancel">Cancel</string>
+    <string name="change_theme">Change theme</string>
+    <string name="theme_changed_to">The theme was changed on %1$s</string>
     <string-array name="theme_options">
-        <item>Light</item>
-        <item>Dark</item>
+        <item>Purple</item>
+        <item>Green</item>
     </string-array>
 
     <!-- WEATHER -->
@@ -24,21 +26,21 @@
     <string name="homeIcon">Home</string>
     <string name="favoriteIcon">Favorites</string>
     <string name="address">Prague, CZ</string>
-    <string name="updated_at">20 April 2012, 20:08 PM</string>
     <string name="status">Clear Sky</string>
-    <string name="temp">29°C</string>
-    <string name="temp_min">Min Temp: 05:05 AM</string>
-    <string name="temp_max">Max Temp: 05:05 PM</string>
+    <string name="updated_at">Updated at</string>
+    <string name="min_temp">Min temp</string>
+    <string name="max_temp">Max temp</string>
+    <string name="temp">Temperature:</string>
     <string name="sunrise">Sunrise</string>
-    <string name="time_sunrise">06:40 AM</string>
+    <string name="time_sunrise">06:40</string>
     <string name="sunset">Sunset</string>
-    <string name="time_sunset">06:40 AM</string>
+    <string name="time_sunset">06:40</string>
     <string name="wind">Wind</string>
-    <string name="time_wind">06:40 AM</string>
+    <string name="time_wind">06:40</string>
     <string name="pressure">Pressure</string>
-    <string name="time_pressure">06:40 AM</string>
+    <string name="time_pressure">06:40</string>
     <string name="humidity">Humidity</string>
-    <string name="time_humidity">06:40 AM</string>
+    <string name="time_humidity">06:40</string>
     <string name="clouds">Clouds</string>
     <string name="value_clouds">83</string>
     <string name="errorText">Something went wrong</string>
@@ -54,4 +56,16 @@
     <string name="network_error">Network error</string>
     <string name="no_connection">You are not connected to the internet!</string>
     <string name="no_permission">Permission Denied</string>
+    <!-- HOME FRAGMENT -->
+    <string name="city_name">City Name</string>
+    <string name="observation_time">Observation Time</string>
+    <string name="pocitov_teplota_c">Feels like</string>
+    <string name="precipitation_mm">Precipitation</string>
+    <string name="fav_cities">Fav. cities</string>
+    <!-- FORECAST FRAGMENT -->
+    <string name="date">Date</string>
+    <string name="condition">Condition</string>
+    <string name="zelen_motiv">Green</string>
+    <string name="fialov_motiv">Purple</string>
+
 </resources>

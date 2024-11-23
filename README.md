@@ -23,25 +23,15 @@ Funkce 🚀
 
 *   **Oblíbená města:** Uživatelé mohou ukládat a načítat oblíbená města pro rychlý přístup. ⭐
 
-FRONTEND TO-DO
-* **Úprava home fragmentu - zatmavení pozadí a průhledné aktuální počasí**
+*   **Změna motivu:** Uživatelé si mohou vybrat mezi 2 vizuálními styly. 🌞🌙
 
-* **Úprava hvězdičky dle oblíbeného města -> ANO/NE**
+*   **Multijazyčná aplikace:** Možnost přepínání mezi českým a anglickým jazykem. 🌐
 
-REST TO-DO
-*   **Světlý a tmavý režim:** Uživatelé si mohou vybrat preferovaný vizuální styl. 🌞🌙
-
-*   **Multijazyčná aplikace:** Možnost přepínání mezi různými jazyky pro širší přístupnost. 🌐
-
-*   **Sdílení počasí:** Uživatelé mohou sdílet informace o počasí s přáteli a rodinou. 📤
-
-*   **Notifikace:** Uživatelé mohou dostávat notifikace o změnách počasí. 📩
+*   **Notifikace:** Uživatelé dostávají každou hodinu notifikace o aktuální teplotě z domácí stanice. 📩
 
 *   **Podpora geolokace:** Uživatelé mohou získat aktuální předpověď počasí pro svou polohu. 📍
 
-*   **Animace počasí:** Vizuální zobrazení počasí pomocí animací. 🌪️
-
-
+*   **Animace počasí:** Vizuální zobrazení počasí pomocí animací. 🌪️ - NOT IMPLEMENTED YET
 
 Technologie 🛠️
 ---------------
@@ -55,10 +45,17 @@ Technologie 🛠️
 *   **OpenWeatherMap API**: API pro získávání aktuálních a budoucích předpovědí počasí. ☁️
 
 *   **Personal Weather Station API**: Domácí API pro získávání aktuáních dat o počasí z meteostanice na zahradě. 🌡️ 
-    
+
 Fotky 📸
---------------
-![Dashboard](app/src/main/res/drawable/dashboard.png)
+---------------
+
+| **Hlavní stránka** | **Předpověď** | **Oblíbená města**                                                                 |
+|---|---|------------------------------------------------------------------------------------|
+| <img src="app/src/main/res/drawable/dashboard.png" alt="Dashboard" width="250"/> | <img src="app/src/main/res/drawable/forecast.png" alt="Forecast" width="250"/> | <img src="app/src/main/res/drawable/fav_cities.png" alt="fav_cities" width="250"/> |
+
+| **Dashboard (Purple Theme)** | **Nastavení** | **Notifikace** |
+|---|---|---|
+| <img src="app/src/main/res/drawable/dashboard_purple_theme_en.png" alt="Dashboard Purple Theme" width="250"/> | <img src="app/src/main/res/drawable/settings.png" alt="Settings" width="250"/> | <img src="app/src/main/res/drawable/notifications.png" alt="Notifications" width="250"/> |
 
 Jak spustit ⚙️
 --------------
