@@ -38,6 +38,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/czechButton"
+        android:background="@drawable/transparent_button"
+        android:textAppearance="@style/TransparentButtonText"
         app:layout_constraintTop_toBottomOf="@id/languageLabel"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="8dp" />
@@ -47,9 +49,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/englishButton"
+        android:background="@drawable/transparent_button"
+        android:textAppearance="@style/TransparentButtonText"
         app:layout_constraintTop_toBottomOf="@id/languageLabel"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp" />
+
 
     <!-- Výběr tématu -->
     <TextView
@@ -68,6 +73,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fialov_motiv"
+        android:background="@drawable/transparent_button"
+        android:textAppearance="@style/TransparentButtonText"
         app:layout_constraintTop_toBottomOf="@id/themeLabel"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="8dp" />
@@ -77,10 +84,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/zelen_motiv"
+        android:background="@drawable/transparent_button"
+        android:textAppearance="@style/TransparentButtonText"
         app:layout_constraintTop_toBottomOf="@id/themeLabel"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp" />
-
 
     <!-- Přepínač pro animace počasí -->
     <androidx.appcompat.widget.SwitchCompat
