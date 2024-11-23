@@ -49,6 +49,9 @@ Technologie 🛠️
 Fotky 📸
 --------------
 ![Dashboard](app/src/main/res/drawable/dashboard.png)
+![Dashboard](app/src/main/res/drawable/forecast.png)
+![Dashboard](app/src/main/res/drawable/dashboard_purple_theme_en.png)
+![Dashboard](app/src/main/res/drawable/notifications.png)
 
 Jak spustit ⚙️
 --------------
