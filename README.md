@@ -45,13 +45,16 @@ Technologie 🛠️
 *   **OpenWeatherMap API**: API pro získávání aktuálních a budoucích předpovědí počasí. ☁️
 
 *   **Personal Weather Station API**: Domácí API pro získávání aktuáních dat o počasí z meteostanice na zahradě. 🌡️ 
-    
+
 Fotky 📸
---------------
-![Dashboard](app/src/main/res/drawable/dashboard.png)
-![Dashboard](app/src/main/res/drawable/forecast.png)
-![Dashboard](app/src/main/res/drawable/dashboard_purple_theme_en.png)
-![Dashboard](app/src/main/res/drawable/notifications.png)
+
+| **Dashboard** | **Forecast** | **Dashboard (Purple Theme)** |
+|---|---|---|
+| <img src="app/src/main/res/drawable/dashboard.png" alt="Dashboard" width="250"/> | <img src="app/src/main/res/drawable/forecast.png" alt="Forecast" width="250"/> | <img src="app/src/main/res/drawable/dashboard_purple_theme_en.png" alt="Dashboard Purple Theme" width="250"/> |
+
+| **Settings** | **Notifications** |
+|---|---|
+| <img src="app/src/main/res/drawable/settings.png" alt="Settings" width="250"/> | <img src="app/src/main/res/drawable/notifications.png" alt="Notifications" width="250"/> |
 
 Jak spustit ⚙️
 --------------
