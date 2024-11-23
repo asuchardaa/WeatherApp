@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Date"
+        android:text="@string/date"
         android:textColor="@color/white"
         android:textSize="16dp" />
 
@@ -20,7 +20,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Temp"
+        android:text="@string/temp"
         android:textColor="@color/white"
         android:textSize="16dp" />
 
@@ -29,7 +29,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Condition"
+        android:text="@string/condition"
         android:textColor="@color/white"
         android:textSize="16dp" />
 

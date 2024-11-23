@@ -43,6 +43,11 @@ class FavoriteCitiesFragment : DialogFragment() {
         weatherDatabase = WeatherDatabase(requireContext())
         favoriteCities = weatherDatabase.getAllFavoriteCities().toMutableList()
 
+        val sharedPreferencesSettings = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        val currentTheme = sharedPreferencesSettings.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
+        val backgroundResource = if (currentTheme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
+        view.setBackgroundResource(backgroundResource)
+
         val favoriteCitiesList = view.findViewById<ListView>(R.id.favoriteCitiesListView)
         favoriteCitiesAdapter = FavoriteCitiesAdapter(requireContext(), favoriteCities) { deletedCity ->
             favoriteCities.remove(deletedCity)
@@ -82,7 +87,6 @@ class FavoriteCitiesFragment : DialogFragment() {
             window.attributes = params
         }
     }
-
 
     override fun onDetach() {
         super.onDetach()

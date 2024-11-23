@@ -17,6 +17,8 @@ import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherDatabase
 import com.example.weatherapp.ui.adapters.Forecast
 import com.example.weatherapp.ui.adapters.ForecastAdapter
+import com.example.weatherapp.utils.WeatherDescriptionTranslator.Companion.translateDate
+import com.example.weatherapp.utils.WeatherDescriptionTranslator.Companion.translateWeatherCondition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -37,10 +39,10 @@ class ForecastFragment : Fragment() {
     private lateinit var updatedAt: TextView
     private lateinit var forecastRecyclerView: RecyclerView
 
-    private var fragmentWeather = WeatherFragment()
-    private var CITY = fragmentWeather.CITY
-    private var COUNTRY = fragmentWeather.COUNTRY
-    private val API = fragmentWeather.API
+    private var weatherFragment = WeatherFragment()
+    private var CITY = weatherFragment.CITY
+    private var COUNTRY = weatherFragment.COUNTRY
+    private val API = weatherFragment.API
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -53,6 +55,11 @@ class ForecastFragment : Fragment() {
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
         COUNTRY = sharedPreferences.getString("selected_country", "CZ") ?: "CZ"
+
+        val sharedPreferencesSettings = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        val currentTheme = sharedPreferencesSettings.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
+        val backgroundResource = if (currentTheme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
+        view.setBackgroundResource(backgroundResource)
 
         weatherDatabase = WeatherDatabase(requireContext())
 
@@ -100,6 +107,7 @@ class ForecastFragment : Fragment() {
             val jsonObj = JSONObject(data)
             val list = jsonObj.getJSONArray("list")
             val forecastList = mutableListOf<Forecast>()
+            val language = SettingsFragment.selectedLanguage
 
             for (i in 0 until list.length()) {
                 val forecast = list.getJSONObject(i)
@@ -107,11 +115,19 @@ class ForecastFragment : Fragment() {
                 val weather = forecast.getJSONArray("weather").getJSONObject(0)
                 val dateTime = forecast.getLong("dt") * 1000
                 val date = SimpleDateFormat("EEE, d MMM HH:mm", Locale.ENGLISH).format(Date(dateTime))
+                val translatedDate = if (SettingsFragment.selectedLanguage == "cs") translateDate(date) else date
+
+                // Přeložení popisu podmínek počasí
+                val condition = if (language == "cs") {
+                    translateWeatherCondition(weather.getString("description"))
+                } else {
+                    weather.getString("description").capitalize(Locale.getDefault())
+                }
 
                 val forecastItem = Forecast(
-                    date = date,
+                    date = translatedDate,
                     temp = main.getString("temp"),
-                    condition = weather.getString("description").capitalize(Locale.getDefault()),
+                    condition = condition,
                     iconRes = getWeatherIcon(weather.getString("icon"))
                 )
                 forecastList.add(forecastItem)
@@ -122,7 +138,7 @@ class ForecastFragment : Fragment() {
 
             val lastUpdatedDate = SimpleDateFormat("EEE, d MMM yyyy HH:mm", Locale.ENGLISH).format(Date())
             address.text = "$CITY, $COUNTRY"
-            updatedAt.text = "Last Updated: $lastUpdatedDate"
+            updatedAt.text = if (language == "cs") "Aktualizováno: $lastUpdatedDate" else "Last Updated: $lastUpdatedDate"
 
             mainContainer.visibility = View.VISIBLE
             loader.visibility = View.GONE
@@ -130,6 +146,7 @@ class ForecastFragment : Fragment() {
             showError("Nastala chyba při zpracování dat.")
         }
     }
+
 
     private fun getWeatherIcon(iconCode: String): Int {
         return when (iconCode) {

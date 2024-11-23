@@ -12,11 +12,12 @@
     <string name="restart_required_message">Pro změnu jazyka je třeba restartovat aplikaci. Chcete nyní restartovat?</string>
     <string name="restart_now">Restartovat</string>
     <string name="cancel">Zrušit</string>
+    <string name="change_theme">Změnit motiv</string>
+    <string name="theme_changed_to">Motiv byl změněn na %1$s</string>
     <string-array name="theme_options">
-        <item>Světlý</item>
-        <item>Tmavý</item>
+        <item>Fialový</item>
+        <item>Zelený</item>
     </string-array>
-
     <!-- POČASÍ -->
     <string name="citySearch">Zadejte město</string>
     <string name="locationIcon">Použít polohu</string>
@@ -53,7 +54,16 @@
     <string name="network_error">Chyba sítě</string>
     <string name="no_connection">Žádné připojení k internetu!</string>
     <string name="no_permission">Povolení zamítnuto</string>
-
-
+    <!-- HOME FRAGMENT -->
+    <string name="city_name">Název města</string>
+    <string name="observation_time">Čas měření:</string>
+    <string name="pocitov_teplota_c">Pocitová teplota:</string>
+    <string name="precipitation_mm">Srážky:</string>
+    <string name="fav_cities">Oblíbená města</string>
+    <!-- FORECAST FRAGMENT -->
+    <string name="date">Datum</string>
+    <string name="condition">Kondice</string>
+    <string name="zelen_motiv">Zelená</string>
+    <string name="fialov_motiv">Fialová</string>
 
 </resources>

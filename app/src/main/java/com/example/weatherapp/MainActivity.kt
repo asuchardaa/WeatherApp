@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -35,9 +36,20 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
         super.attachBaseContext(context)
     }
 
+    fun updateThemeForFragments(theme: String) {
+        val fragmentContainer = findViewById<View>(R.id.mainContainer)
+        val backgroundResource = if (theme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
+        fragmentContainer.setBackgroundResource(backgroundResource)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val sharedPreferences = getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        val savedTheme = sharedPreferences.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
+        updateThemeForFragments(savedTheme!!)
+
 
         // Nastavení navigace
         val bottomNav: BottomNavigationView = findViewById(R.id.bottom_navigation)

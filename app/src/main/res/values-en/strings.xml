@@ -12,9 +12,11 @@
     <string name="restart_required_message">Application will now be restarted due to new language </string>
     <string name="restart_now">Restart</string>
     <string name="cancel">Cancel</string>
+    <string name="change_theme">Change theme</string>
+    <string name="theme_changed_to">The theme was changed on %1$s</string>
     <string-array name="theme_options">
-        <item>Light</item>
-        <item>Dark</item>
+        <item>Purple</item>
+        <item>Green</item>
     </string-array>
 
     <!-- WEATHER -->
@@ -54,4 +56,16 @@
     <string name="network_error">Network error</string>
     <string name="no_connection">You are not connected to the internet!</string>
     <string name="no_permission">Permission Denied</string>
+    <!-- HOME FRAGMENT -->
+    <string name="city_name">City Name</string>
+    <string name="observation_time">Observation Time</string>
+    <string name="pocitov_teplota_c">Feels like</string>
+    <string name="precipitation_mm">Precipitation</string>
+    <string name="fav_cities">Fav. cities</string>
+    <!-- FORECAST FRAGMENT -->
+    <string name="date">Date</string>
+    <string name="condition">Condition</string>
+    <string name="zelen_motiv">Green</string>
+    <string name="fialov_motiv">Purple</string>
+
 </resources>

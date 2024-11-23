@@ -63,15 +63,24 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp" />
 
-    <Spinner
-        android:id="@+id/themeSpinner"
-        android:layout_width="0dp"
+    <Button
+        android:id="@+id/purpleThemeButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:entries="@array/theme_options"
+        android:text="@string/fialov_motiv"
         app:layout_constraintTop_toBottomOf="@id/themeLabel"
         app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/greenThemeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/zelen_motiv"
+        app:layout_constraintTop_toBottomOf="@id/themeLabel"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp" />
+
 
     <!-- Přepínač pro animace počasí -->
     <androidx.appcompat.widget.SwitchCompat
@@ -81,7 +90,7 @@
         android:text="@string/animations_label"
         android:textSize="18sp"
         android:textColor="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/themeSpinner"
+        app:layout_constraintTop_toBottomOf="@id/greenThemeButton"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp" />
 

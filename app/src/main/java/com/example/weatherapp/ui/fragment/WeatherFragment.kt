@@ -75,6 +75,11 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val sharedPreferencesSettings = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        val currentTheme = sharedPreferencesSettings.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
+        val backgroundResource = if (currentTheme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
+        view.setBackgroundResource(backgroundResource)
+
         weatherDatabase = WeatherDatabase(requireContext())
 
         loader = view.findViewById(R.id.loader)
@@ -161,16 +166,16 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
                     val drawableStartX = citySearch.width - citySearch.paddingEnd - drawableEnd.intrinsicWidth
                     if (event.x >= drawableStartX) {
                         // Přidání nebo odstranění města z oblíbených
-                            val isFavorite = isCityInFavorites(CITY, COUNTRY)
-                            // Přidání města do oblíbených
-                            if (CITY.isNotEmpty()) {
-                                weatherDatabase.insertOrUpdateFavoriteCity(CITY, COUNTRY)
-                                Toast.makeText(requireContext(), getString(R.string.favorite_added), Toast.LENGTH_SHORT).show()
-                                updateStarIcon()
-                            }
-                            if (isFavorite) {
-                                updateStarIcon()
-                            }
+                        val isFavorite = isCityInFavorites(CITY, COUNTRY)
+                        // Přidání města do oblíbených
+                        if (CITY.isNotEmpty()) {
+                            weatherDatabase.insertOrUpdateFavoriteCity(CITY, COUNTRY)
+                            Toast.makeText(requireContext(), getString(R.string.favorite_added), Toast.LENGTH_SHORT).show()
+                            updateStarIcon()
+                        }
+                        if (isFavorite) {
+                            updateStarIcon()
+                        }
                         return@setOnTouchListener true
                     }
                 }
@@ -577,7 +582,7 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
 
                 } else if (language == "cs") {
                     val parser = WeatherDataParser(data)
-
+                    view?.findViewById<TextView>(R.id.address)?.text = "$CITY, $COUNTRY"
                     view?.findViewById<TextView>(R.id.updated_at)?.text = parser.getUpdatedAtText(requireContext())
                     view?.findViewById<TextView>(R.id.status)?.text = parser.getWeatherDescription(language)
                     view?.findViewById<TextView>(R.id.temp)?.text = parser.getTemperature()
@@ -602,7 +607,6 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
             loader.visibility = View.GONE
         }
     }
-
 
     @SuppressLint("StaticFieldLeak")
     inner class WeatherTask() : AsyncTask<String, Void, String>() {
