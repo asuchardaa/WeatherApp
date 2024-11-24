@@ -136,7 +136,7 @@ class ForecastFragment : Fragment() {
             forecastRecyclerView.layoutManager = LinearLayoutManager(context)
             forecastRecyclerView.adapter = ForecastAdapter(forecastList)
 
-            val lastUpdatedDate = SimpleDateFormat("EEE, d MMM yyyy HH:mm", Locale.ENGLISH).format(Date())
+            val lastUpdatedDate = SimpleDateFormat("EEE, d MMM HH:mm", Locale.ENGLISH).format(Date())
             address.text = "$CITY, $COUNTRY"
             updatedAt.text = if (language == "cs") "Aktualizováno: $lastUpdatedDate" else "Last Updated: $lastUpdatedDate"
 
