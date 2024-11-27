@@ -29,6 +29,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.weatherapp.BuildConfig
 import android.Manifest
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Handler
 import android.os.Looper
 import android.view.animation.AnimationUtils
@@ -258,13 +260,28 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
 
     private fun fetchData() {
         val cachedData = weatherDatabase.getCurrentWeather(CITY, COUNTRY)
-        if (cachedData != null) {
-            // Nejprve zobrazíme uložená data
-            updateUIWithWeatherData(cachedData)
-        }
 
-        WeatherTask().execute()
+        if (!isInternetAvailable()) {
+            if (cachedData != null) {
+                // Zobrazení uložených dat
+                updateUIWithWeatherData(cachedData)
+                Toast.makeText(requireContext(), getString(R.string.no_connection), Toast.LENGTH_SHORT).show()
+            } else {
+                // Žádná data nejsou k dispozici
+                errorText.visibility = View.VISIBLE
+                loader.visibility = View.GONE
+                Toast.makeText(requireContext(), getString(R.string.no_connection), Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            if (cachedData != null) {
+                // Nejprve zobrazíme uložená data
+                updateUIWithWeatherData(cachedData)
+            }
+            // Poté stáhneme nová data
+            WeatherTask().execute()
+        }
     }
+
 
 
     private fun getCurrentLocation() {
@@ -422,6 +439,14 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
         builder.show()
     }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(network)
+        return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
 
     private fun showCitySelectionDialog(cityList: List<String>) {
         Log.d("GPS_FW", "Displaying city selection dialog with options: $cityList")
@@ -635,7 +660,7 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
                 // Aktualizovat UI s novými daty
                 updateUIWithWeatherData(result)
             } else {
-                // V případě chyby zobrazíme uložená data
+                // Pokud selže stahování dat, načíst uložená data
                 val cachedData = weatherDatabase.getCurrentWeather(CITY, COUNTRY)
                 if (cachedData != null) {
                     updateUIWithWeatherData(cachedData)

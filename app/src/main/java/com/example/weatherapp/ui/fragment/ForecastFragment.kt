@@ -1,6 +1,8 @@
 package com.example.weatherapp.ui.fragment
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -77,27 +80,56 @@ class ForecastFragment : Fragment() {
 
     private fun fetchData() {
         val cachedData = weatherDatabase.getForecastWeather(CITY, COUNTRY)
-        if (cachedData != null) {
-            updateUIWithForecastData(cachedData)
+
+        if (!isInternetAvailable()) {
+            if (cachedData != null) {
+                updateUIWithForecastData(cachedData)
+                showToast(getString(R.string.no_connection))
+            } else {
+                // Žádná data nejsou dostupná
+                showError(getString(R.string.no_connection))
+            }
         } else {
+            if (cachedData != null) {
+                // Nejprve zobrazíme uložená data
+                updateUIWithForecastData(cachedData)
+            }
+            // Následně načteme aktuální data
             coroutineScope.launch {
                 fetchForecastData()
             }
         }
     }
 
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(network)
+        return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+
     private suspend fun fetchForecastData() = withContext(Dispatchers.IO) {
         try {
             val response = URL("https://api.openweathermap.org/data/2.5/forecast?q=$CITY,$COUNTRY&units=metric&appid=$API").readText()
             weatherDatabase.insertOrUpdateForecastWeather(CITY, COUNTRY, response)
-            Log.e("ForecastFragment", "Response: $response")
             withContext(Dispatchers.Main) {
                 updateUIWithForecastData(response)
             }
         } catch (e: Exception) {
             Log.e("ForecastFragment", "Error fetching forecast data: ${e.message}")
             withContext(Dispatchers.Main) {
-                showError("Nastala chyba při načítání počasí. Zkontrolujte připojení k internetu.")
+                val cachedData = weatherDatabase.getForecastWeather(CITY, COUNTRY)
+                if (cachedData != null) {
+                    updateUIWithForecastData(cachedData)
+                    showToast(getString(R.string.no_connection))
+                } else {
+                    showError(getString(R.string.network_error))
+                }
             }
         }
     }
