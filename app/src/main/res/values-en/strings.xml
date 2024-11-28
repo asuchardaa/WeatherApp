@@ -14,6 +14,8 @@
     <string name="cancel">Cancel</string>
     <string name="change_theme">Change theme</string>
     <string name="theme_changed_to">The theme was changed on %1$s</string>
+    <string name="zelen_motiv">Green</string>
+    <string name="fialov_motiv">Purple</string>
     <string-array name="theme_options">
         <item>Purple</item>
         <item>Green</item>
@@ -65,7 +67,4 @@
     <!-- FORECAST FRAGMENT -->
     <string name="date">Date</string>
     <string name="condition">Condition</string>
-    <string name="zelen_motiv">Green</string>
-    <string name="fialov_motiv">Purple</string>
-
 </resources>

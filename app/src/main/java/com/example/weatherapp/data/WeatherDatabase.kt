@@ -5,6 +5,14 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 
+/**
+ * Třída WeatherDatabase
+ * Přístup k SQLite databázi,
+ * Ukládá aktuální počasí, předpovědí a oblíbená města.
+ *
+ * @constructor instance.
+ * @param context otevření/vytvoření databáze.
+ */
 class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
@@ -29,6 +37,10 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
 
     }
 
+    /**
+     * Metoda volaná při prvním vytvoření databáze.
+     * Vytváří tabulky pro ukládání aktuálního počasí, předpovědí a oblíbených měst.
+     */
     override fun onCreate(db: SQLiteDatabase) {
         // Vytvoření tabulky pro aktuální počasí
         val CREATE_CURRENT_WEATHER_TABLE = ("CREATE TABLE $TABLE_CURRENT_WEATHER (" +
@@ -55,6 +67,14 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         db.execSQL(CREATE_FAVORITE_CITIES_TABLE)
     }
 
+    /**
+     * Metoda volaná při aktualizaci databáze (např. při změně verze).
+     * Odstraňuje staré tabulky a vytváří nové.
+     *
+     * @param db Instance databáze, která má být aktualizována.
+     * @param oldVersion Starší verze databáze.
+     * @param newVersion Nová verze databáze.
+     */
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $TABLE_CURRENT_WEATHER")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_FORECAST_WEATHER")
@@ -62,7 +82,13 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         onCreate(db)
     }
 
-    // Funkce pro vložení nebo aktualizaci aktuálního počasí
+    /**
+     * Vloží nebo aktualizuje aktuální počasí pro zadané město a zemi.
+     *
+     * @param city Název města.
+     * @param country Název země.
+     * @param data Data o aktuálním počasí.
+     */
     fun insertOrUpdateCurrentWeather(city: String, country: String, data: String) {
         try {
             val db = writableDatabase
@@ -74,7 +100,13 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         }
     }
 
-    // Funkce pro načtení aktuálního počasí
+    /**
+     * Načte aktuální počasí pro dané město a zemi.
+     *
+     * @param city Název města.
+     * @param country Název země.
+     * @return Data o aktuálním počasí nebo `null`, pokud nejsou dostupná.
+     */
     fun getCurrentWeather(city: String, country: String): String? {
         return try {
             val db = readableDatabase
@@ -89,7 +121,13 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         }
     }
 
-    // Funkce pro vložení nebo aktualizaci předpovědi počasí
+    /**
+     * Vloží nebo aktualizuje předpověď počasí pro zadané město a zemi.
+     *
+     * @param city Název města.
+     * @param country Název země.
+     * @param forecastData Data o předpovědi počasí.
+     */
     fun insertOrUpdateForecastWeather(city: String, country: String, forecastData: String) {
         try {
             val db = writableDatabase
@@ -100,7 +138,13 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         }
     }
 
-    // Funkce pro načtení předpovědi počasí
+    /**
+     * Načte předpověď počasí pro dané město a zemi.
+     *
+     * @param city Název města.
+     * @param country Název země.
+     * @return Data o předpovědi počasí nebo `null`, pokud nejsou dostupná.
+     */
     fun getForecastWeather(city: String, country: String): String? {
         val oneDayAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
 
@@ -112,6 +156,7 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
                         " WHERE $COLUMN_CITY = ? AND $COLUMN_COUNTRY = ? AND $COLUMN_TIMESTAMP > ?",
                 arrayOf(city, country, oneDayAgo.toString()))
 
+            // něco jako try/finally v c#, akorát tady jak si hraju s mobilem, tak tu je kurzor a sám se zavře -> lépe se pak uživateli ovládá a píše...
             cursor.use {
                 if (it.moveToFirst()) return it.getString(it.getColumnIndexOrThrow(
                     COLUMN_FORECAST_DATA
@@ -123,20 +168,35 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         }
     }
 
+    /**
+     * Odstraní staré předpovědi počasí.
+     *
+     * @param db Instance databáze.
+     */
     private fun deleteOldForecasts(db: SQLiteDatabase) {
         val oneDayAgo = System.currentTimeMillis() - 24 * 60 * 60 * 1000
         db.execSQL("DELETE FROM $TABLE_FORECAST_WEATHER WHERE $COLUMN_TIMESTAMP < ?", arrayOf(oneDayAgo.toString()))
     }
 
 
-    // Funkce pro přidání města do oblíbených
+    /**
+     * Vloží nebo aktualizuje oblíbené město.
+     *
+     * @param city Název města.
+     * @param country Název země.
+     */
     fun insertOrUpdateFavoriteCity(city: String, country: String) {
         val db = writableDatabase
         val sql = "INSERT OR IGNORE INTO $TABLE_FAVORITE_CITIES ($COLUMN_FAVORITE_CITY, $COLUMN_FAVORITE_COUNTRY) VALUES (?, ?)"
         db.execSQL(sql, arrayOf(city, country))
     }
 
-    // Funkce pro odstranění oblíbeného města
+    /**
+     * Odstraní oblíbené město.
+     *
+     * @param city Název města.
+     * @param country Název země.
+     */
     fun removeFavoriteCity(city: String, country: String) {
         val db = writableDatabase
         db.beginTransaction()
@@ -162,7 +222,11 @@ class WeatherDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         }
     }
 
-    // Funkce pro načtení oblíbených měst
+    /**
+     * Načte všechna oblíbená města.
+     *
+     * @return Seznam oblíbených měst.
+     */
     fun getAllFavoriteCities(): List<String> {
         val db = readableDatabase
         val favoriteCities = mutableListOf<String>()

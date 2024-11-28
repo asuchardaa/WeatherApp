@@ -46,7 +46,9 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
-
+/**
+ * Fragment pro zobrazení aktuálního počasí a též třída s nejdůležitější logikou pro získání dat
+ */
 @Suppress("DEPRECATION")
 class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
     var CITY = "Prague"
@@ -63,16 +65,21 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
     private lateinit var locationManager: LocationManager
     private val language = SettingsFragment.selectedLanguage
 
-    private val gpsTimeoutHandler = Handler(Looper.getMainLooper())
+    private val gpsTimeoutHandler = Handler(Looper.getMainLooper()) // Handler pro správu timeoutů GPS
     private var gpsTimeoutRunnable: Runnable? = null
-    private val locationPermissionCode = 2
+    private val locationPermissionCode = 2 // Kód pro požadavek na oprávnění
 
-
+    /**
+     * Inflatuje layout fragmentu.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_weather, container, false)
     }
 
+    /**
+     * Inicializace UI komponent, logika vyhledávání měst a práce s databází.
+     */
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -82,8 +89,8 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         val backgroundResource = if (currentTheme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
         view.setBackgroundResource(backgroundResource)
 
+        // UI, asi by chtelo nahradit bindingem (citelnejsi a kratsi kod), ale uz je pozde a jsem linej :(
         weatherDatabase = WeatherDatabase(requireContext())
-
         loader = view.findViewById(R.id.loader)
         mainContainer = view.findViewById(R.id.mainContainer)
         errorText = view.findViewById(R.id.errorText)
@@ -133,7 +140,7 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 s?.let {
                     if (it.length > 2) {
-                        fetchCitySuggestions(it.toString())
+                        fetchCitySuggestions(it.toString()) // načte návrhy, až uživatel napíše alespoň 3 znaky
                         //citySearch.setText("")
                         updateStarIcon()
                     }
@@ -141,6 +148,7 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
             }
         })
 
+        // logika pro výběr města z návrhů
         citySearch.setOnItemClickListener { parent, _, position, _ ->
             val selectedCity = parent.getItemAtPosition(position) as String
             CITY = selectedCity.substringBefore(",") // město
@@ -159,7 +167,7 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
             updateStarIcon()
         }
 
-        // diky gpt, drawableEnd bych nikdy nezvladnul :D
+        // diky gpt, pozicovani pri kliknuti zrovna tam, kde je obsazenej drawableEnd, bych nikdy nezvladnul... :D
         // pocitani souradnic, husty
         citySearch.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
@@ -208,6 +216,12 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         fetchData()
     }
 
+    /**
+     * Reaguje na výběr města z dialogu.
+     *
+     * @param city Vybrané město.
+     * @param country Země města.
+     */
     fun onCitySelected(city: String, country: String) {
         CITY = city
         COUNTRY = country
@@ -224,13 +238,20 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
     }
 
 
+    /**
+     * Načte návrhy měst na základě zadaného dotazu - nutno ale zadat mesto co nejpresneji, protoze to hleda po celem svete
+     *
+     * @param query Dotaz na název města. Vyžaduje přesné zadání (např. "Prague").
+     */
     private fun fetchCitySuggestions(query: String) {
         AsyncTask.execute {
             // URL API s požadavkem pouze na název města a s limitem 5 výsledků
             val apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=$query&limit=5&appid=$API"
             try {
+                // stáhne data a zpracuje je
                 val response = URL(apiUrl).readText()
                 val cities = parseCitySuggestions(response)
+                // zobrazí návrhy v UI
                 requireActivity().runOnUiThread {
                     val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cities)
                     citySearch.setAdapter(adapter)
@@ -242,6 +263,12 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
+    /**
+     * Parsuje JSON odpověď z API a extrahuje seznam měst.
+     *
+     * @param response JSON odpověď z API.
+     * @return Seznam měst ve formátu "City, Country".
+     */
     private fun parseCitySuggestions(response: String): List<String> {
         val cities = mutableSetOf<String>()
         try {
@@ -258,6 +285,11 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         return cities.toList()
     }
 
+    /**
+     * Načte data o počasí pro aktuální město a zemi.
+     * Nejprve zkontroluje, zda je dostupné internetové připojení.
+     * Pokud není připojení, použije uložená data.
+     */
     private fun fetchData() {
         val cachedData = weatherDatabase.getCurrentWeather(CITY, COUNTRY)
 
@@ -282,14 +314,17 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
-
-
+    /**
+     * Získá aktuální polohu uživatele a pokusí se načíst nejbližší město.
+     * Zamerne ponechavam debugy, protoze s gps je to vzdycky takova loterie a je dobre videt, co se deje
+     */
     private fun getCurrentLocation() {
         Log.d("GPS_FW", "Starting getCurrentLocation()")
 
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d("GPS_FW", "Permission not granted. Requesting permission...")
 
+            // Požádá o oprávnění k přístupu k poloze
             ActivityCompat.requestPermissions(
                 requireActivity(),
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -297,7 +332,7 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
             )
         } else {
             Log.d("GPS_FW", "Permission granted. Starting GPS updates...")
-
+            // Pokud je oprávnění uděleno, spustí sledování polohy
             locationIcon.setImageResource(R.drawable.gps_not_fixed)
             startGpsLoaderAnimation()
 
@@ -313,8 +348,8 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
 
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                1000, // Aktualizace každou sekundu
-                1f    // Minimální změna polohy 1 metr
+                1000, // Interval aktualizace polohy 1 sekunda
+                1f    // Minimální změna polohy 1 metr (tolerance)
             ) { location ->
                 Log.d("GPS_FW", "Location update received: Lat=${location.latitude}, Lon=${location.longitude}")
                 gpsTimeoutHandler.removeCallbacks(gpsTimeoutRunnable!!)
@@ -324,6 +359,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
+    /**
+     * Získá poslední známou polohu uživatele a pokusí se načíst nejbližší město.
+     */
     private fun fetchLastKnownLocation() {
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
@@ -355,6 +393,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
+    /**
+     * Listener pro aktualizaci ikonky GPS a obsluha animace.
+     */
     private val locationListener = LocationListener { location ->
         Log.d("GPS_FW", "Location update received: Lat=${location.latitude}, Lon=${location.longitude}")
 
@@ -364,6 +405,11 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         fetchNearestCityFromLocation(location)
     }
 
+    /**
+     * Načte nejbližší město na základě dané lokace.
+     *
+     * @param location Aktuální GPS poloha uživatele.
+     */
     private fun fetchNearestCityFromLocation(location: Location) {
         Log.d("GPS_FW", "Fetching nearest city for location: Lat=${location.latitude}, Lon=${location.longitude}")
 
@@ -397,6 +443,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
+    /**
+     * Zobrazí dialog pro ruční výběr města -> tim osetruju pripad, kdy gps vylozene najde a parsne nekolik mest.
+     */
     private fun showManualCitySelectionDialog() {
         Log.d("GPS_FW", "Displaying manual city selection dialog.")
 
@@ -440,6 +489,11 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         builder.show()
     }
 
+    /**
+     * Zkontroluje, zda je k dispozici internetové připojení.
+     *
+     * @return True, pokud je k dispozici internetové připojení.
+     */
     private fun isInternetAvailable(): Boolean {
         val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork
@@ -447,7 +501,11 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
-
+    /**
+     * Zobrazí dialog s výběrem města na základě seznamu možností.
+     *
+     * @param cityList Seznam možných měst.
+     */
     private fun showCitySelectionDialog(cityList: List<String>) {
         Log.d("GPS_FW", "Displaying city selection dialog with options: $cityList")
 
@@ -478,18 +536,31 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         builder.show()
     }
 
+    /**
+     * Zkontroluje, zda je zadané město v oblíbených.
+     *
+     * @param city Název města.
+     * @param country Zkratka země.
+     * @return True, pokud je město v oblíbených.
+     */
     private fun isCityInFavorites(city: String, country: String): Boolean {
         val favoriteCities = weatherDatabase.getAllFavoriteCities()
         val cityWithCountry = "$city, $country"
         return favoriteCities.contains(cityWithCountry)
     }
 
+    /**
+     * Aktualizuje ikonu hvězdy podle toho, zda je město v oblíbených.
+     */
     fun updateStarIcon() {
         val isFavorite = isCityInFavorites(CITY, COUNTRY)
         val starIcon = if (isFavorite) R.drawable.ic_star_filled else R.drawable.ic_star
         citySearch.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, starIcon, 0)
     }
 
+    /**
+     * Obnoví předchozí město, pokud se nepodaří získat nové město z GPS nebo když uživatel žádný město nevybere.
+     */
     private fun restorePreviousCity() {
         Log.d("GPS_FW", "Restoring previous city.")
 
@@ -499,6 +570,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         fetchData()
     }
 
+    /**
+     * Aktualizuje ikonu GPS podle toho, zda je GPS zapnuto.
+     */
     private fun updateGpsIcon() {
         val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         Log.d("GPS_FW", "Updating GPS icon. GPS Enabled: $isGpsEnabled")
@@ -507,6 +581,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         )
     }
 
+    /**
+     * Spustí animaci GPS loaderu.
+     */
     private fun startGpsLoaderAnimation() {
         Log.d("GPS_FW", "Starting GPS loader animation.")
 
@@ -517,6 +594,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         showDarkOverlay()
     }
 
+    /**
+     * Zastaví animaci GPS loaderu.
+     */
     private fun stopGpsLoaderAnimation() {
         Log.d("GPS_FW", "Stopping GPS loader animation.")
 
@@ -526,20 +606,32 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         hideDarkOverlay()
     }
 
+    /**
+     * Zobrazí tmavý overlay nad fragmentem.
+     */
     private fun showDarkOverlay() {
         val darkOverlay = activity?.findViewById<View>(R.id.dark_overlay)
         darkOverlay?.visibility = View.VISIBLE
     }
 
+    /**
+     * Skryje tmavý overlay nad fragmentem.
+     */
     private fun hideDarkOverlay() {
         val darkOverlay = activity?.findViewById<View>(R.id.dark_overlay)
         darkOverlay?.visibility = View.GONE
     }
 
+    /**
+     * Metoda, která se zavolá, když se změní oblíbená města.
+     */
     override fun onFavoritesUpdated() {
         updateStarIcon()
     }
 
+    /**
+     * Zpracování výsledku požadavku na oprávnění.
+     */
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == locationPermissionCode) {
@@ -551,6 +643,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
+    /**
+     * Metoda, která se zavolá, když se fragment zobrazí.
+     */
     override fun onResume() {
         super.onResume()
         updateGpsIcon()
@@ -558,6 +653,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         fetchData()
     }
 
+    /**
+     * Metoda, která se zavolá, když se fragment skryje.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         locationManager.removeUpdates(locationListener)
@@ -566,6 +664,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
+    /**
+     * Metoda, která se zavolá, když se fragment zobrazí.
+     */
     private fun updateUIWithWeatherData(data: String) {
         if (data.isNotEmpty()) {
             try {
@@ -633,6 +734,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
         }
     }
 
+    /**
+     * AsyncTask pro stahování dat o počasí z API - není tolik zatížena paměť a běh celé aplikace, protože jedu asynchronně.
+     */
     @SuppressLint("StaticFieldLeak")
     inner class WeatherTask() : AsyncTask<String, Void, String>() {
         override fun onPreExecute() {
@@ -642,6 +746,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
             errorText.visibility = View.GONE
         }
 
+        /**
+         * Stáhne data o počasí z API, naštěstí pro uživatele, v pozadí.
+         */
         override fun doInBackground(vararg params: String?): String? {
             return try {
                 val apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=$CITY,$COUNTRY&units=metric&appid=$API"
@@ -655,6 +762,9 @@ class WeatherFragment : Fragment(), OnFavoritesUpdatedListener {
             }
         }
 
+        /**
+         * Zpracuje stažená data a aktualizuje UI.
+         */
         override fun onPostExecute(result: String?) {
             if (result != null) {
                 // Aktualizovat UI s novými daty

@@ -18,8 +18,16 @@ import com.example.weatherapp.ui.fragment.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Locale
 
+/**
+ * Hlavní aktivita aplikace, která spravuje navigaci a fragmenty.
+ * Implementuje rozhraní `OnCitySelectedListener` a `OnFavoritesUpdatedListener`.
+ */
 class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpdatedListener {
 
+    /**
+     * Přetížená metoda `attachBaseContext`, která nastavuje lokalizaci aplikace.
+     * Na základě preferencí uživatele nastaví jazyk aplikace (čeština/angličtina).
+     */
     override fun attachBaseContext(newBase: Context) {
         // Inicializace `Locale` z preferencí
         val sharedPreferences = newBase.getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
@@ -30,26 +38,35 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
             else -> Locale.getDefault()
         }
 
+        // Aplikace nového nastavení jazyka
         val config = Configuration(newBase.resources.configuration)
         config.setLocale(locale)
         val context = newBase.createConfigurationContext(config)
         super.attachBaseContext(context)
     }
 
+    /**
+     * Aktualizuje vzhled fragmentů na základě vybraného tématu.
+     *
+     * @param theme Vybrané téma (fialové/zelené).
+     */
     fun updateThemeForFragments(theme: String) {
         val fragmentContainer = findViewById<View>(R.id.mainContainer)
         val backgroundResource = if (theme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
         fragmentContainer.setBackgroundResource(backgroundResource)
     }
 
+    /**
+     * Vytváří aktivitu, nastavuje vzhled a navigaci.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Načtení uloženého tématu
         val sharedPreferences = getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         val savedTheme = sharedPreferences.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
         updateThemeForFragments(savedTheme!!)
-
 
         // Nastavení navigace
         val bottomNav: BottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -71,6 +88,7 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
             }
         }
 
+        // defaultní fragment při prvním načtení, jinak to zůstane na prvním indexovaném fragmentu, a pak je problem s oznacovanim v dolni navigaci
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.mainContainer, WeatherFragment())
@@ -79,10 +97,13 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
             bottomNav.selectedItemId = R.id.nav_weather
         }
 
-        // Oprávnění pro notifikace
+        // Požádání o oprávnění pro notifikace
         requestNotificationPermission()
     }
 
+    /**
+     * Požádá uživatele o oprávnění k zobrazování notifikací (pro Android 13+).
+     */
     private fun requestNotificationPermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -99,6 +120,9 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
         }
     }
 
+    /**
+     * Zpracovává výsledky žádostí o oprávnění.
+     */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -114,17 +138,30 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
         }
     }
 
+    /**
+     * Načte a zobrazuje vybraný fragment.
+     *
+     * @param fragment Fragment, který se má zobrazit.
+     */
     private fun loadFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.mainContainer, fragment)
         transaction.commit()
     }
 
+    /**
+     * Reaguje na výběr města.
+     * Předává informace o vybraném městě do `WeatherFragment`.
+     */
     override fun onCitySelected(city: String, country: String) {
         val fragmentWeather = supportFragmentManager.findFragmentById(R.id.mainContainer) as? WeatherFragment
         fragmentWeather?.onCitySelected(city, country)
     }
 
+    /**
+     * Aktualizuje stav oblíbených položek.
+     * Zajišťuje aktualizaci ikon ve `WeatherFragment`.
+     */
     override fun onFavoritesUpdated() {
         val fragment = supportFragmentManager.findFragmentById(R.id.mainContainer)
         if (fragment is WeatherFragment) {

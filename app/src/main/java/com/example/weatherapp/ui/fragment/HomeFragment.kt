@@ -15,6 +15,9 @@ import com.example.weatherapp.R
 import org.json.JSONObject
 import java.net.URL
 
+/**
+ * Fragment, který zobrazuje aktuální počasí z meteostanice na zahradě..
+ */
 class HomeFragmentDialog : DialogFragment() {
 
     private lateinit var temperatureTextView: TextView
@@ -30,6 +33,9 @@ class HomeFragmentDialog : DialogFragment() {
     var WEATHER_STATION_ID = BuildConfig.STATION_ID
     private val apiUrl = "https://api.weather.com/v2/pws/observations/current?stationId=$WEATHER_STATION_ID&format=json&units=m&apiKey=$API"
 
+    /**
+     * Metoda, která vytvoří pohled fragmentu.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,6 +45,9 @@ class HomeFragmentDialog : DialogFragment() {
         return view
     }
 
+    /**
+     * Metoda, která se zavolá po vytvoření pohledu fragmentu.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateTheme()
@@ -55,10 +64,16 @@ class HomeFragmentDialog : DialogFragment() {
         fetchTemperatureData()
     }
 
+    /**
+     * Metoda, která zavolá asynchronní úlohu pro stažení dat o teplotě.
+     */
     private fun fetchTemperatureData() {
         TemperatureTask().execute()
     }
 
+    /**
+     * Metoda, která aktualizuje téma fragmentu podle nastavení.
+     */
     fun updateTheme() {
         val sharedPreferencesSettings = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         val currentTheme = sharedPreferencesSettings.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
@@ -69,25 +84,30 @@ class HomeFragmentDialog : DialogFragment() {
         constraintLayout?.setBackgroundResource(backgroundResource)
     }
 
-
-
+    /**
+     * Asynchronní vnitřní třída, která zpracovává stažení dat z api o počasí.
+     */
     inner class TemperatureTask : AsyncTask<Void, Void, JSONObject?>() {
         override fun doInBackground(vararg params: Void?): JSONObject? {
             return try {
-                val response = URL(apiUrl).readText(Charsets.UTF_8)
+                val response = URL(apiUrl).readText(Charsets.UTF_8) // hodne ctu
                 Log.d("HomeFragment", "API Response: $response")
                 val jsonResponse = JSONObject(response)
                 val observations = jsonResponse.optJSONArray("observations")
                 if (observations == null || observations.length() == 0) {
                     return null
                 }
-                observations.getJSONObject(0)
+                observations.getJSONObject(0) // prvni objekt je hned to, co mi plive json
             } catch (e: Exception) {
                 Log.e("HomeFragment", "Error parsing JSON", e)
                 null
             }
         }
 
+        /**
+         * Aktualizuje UI po dokončení úlohy na pozadí.
+         * @param result Získaná data ve formátu JSON.
+         */
         override fun onPostExecute(result: JSONObject?) {
             updateTheme()
             super.onPostExecute(result)

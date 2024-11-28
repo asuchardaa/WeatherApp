@@ -32,7 +32,12 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Fragment pro zobrazení předpovědi počasí.
+ * Zajišťuje načítání a zobrazování dat o předpovědi z API nebo z lokální databáze.
+ */
 class ForecastFragment : Fragment() {
+    // UI
     private lateinit var weatherDatabase: WeatherDatabase
     private lateinit var loader: ProgressBar
     private lateinit var mainContainer: RelativeLayout
@@ -42,42 +47,52 @@ class ForecastFragment : Fragment() {
     private lateinit var updatedAt: TextView
     private lateinit var forecastRecyclerView: RecyclerView
 
+    // základni konfigurace
     private var weatherFragment = WeatherFragment()
     private var CITY = weatherFragment.CITY
     private var COUNTRY = weatherFragment.COUNTRY
     private val API = weatherFragment.API
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
+    /**
+     * Vytvoření view pro fragment.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_weather_forecast, container, false)
     }
 
+    /**
+     * Inicializace view.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Načtení uloženého města a země
         val sharedPreferences = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         CITY = sharedPreferences.getString("selected_city", "Prague") ?: "Prague"
         COUNTRY = sharedPreferences.getString("selected_country", "CZ") ?: "CZ"
 
+        // Nastavení pozadí podle zvoleného tématu
         val sharedPreferencesSettings = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         val currentTheme = sharedPreferencesSettings.getString(SettingsFragment.PREF_THEME_KEY, SettingsFragment.THEME_PURPLE)
         val backgroundResource = if (currentTheme == SettingsFragment.THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
         view.setBackgroundResource(backgroundResource)
 
         weatherDatabase = WeatherDatabase(requireContext())
-
         loader = view.findViewById(R.id.loader)
         mainContainer = view.findViewById(R.id.mainContainer)
         errorText = view.findViewById(R.id.errorText)
         addressContainer = view.findViewById(R.id.addressContainer)
         address = view.findViewById(R.id.address)
         updatedAt = view.findViewById(R.id.updated_at)
-
         forecastRecyclerView = view.findViewById(R.id.forecastRecyclerView)
 
         fetchData()
     }
 
+    /**
+     * Získává a zpracovává data o počasí.
+     */
     private fun fetchData() {
         val cachedData = weatherDatabase.getForecastWeather(CITY, COUNTRY)
 
@@ -101,10 +116,17 @@ class ForecastFragment : Fragment() {
         }
     }
 
+    /**
+     * Všichni víme, co tohle dělá :-)
+     */
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * Kontroluje dostupnost internetu.
+     * @return `true`, pokud je internet dostupný.
+     */
     private fun isInternetAvailable(): Boolean {
         val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork
@@ -112,7 +134,9 @@ class ForecastFragment : Fragment() {
         return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
-
+    /**
+     * Načítá aktuální data o předpovědi z API.
+     */
     private suspend fun fetchForecastData() = withContext(Dispatchers.IO) {
         try {
             val response = URL("https://api.openweathermap.org/data/2.5/forecast?q=$CITY,$COUNTRY&units=metric&appid=$API").readText()
@@ -134,6 +158,10 @@ class ForecastFragment : Fragment() {
         }
     }
 
+    /**
+     * Aktualizuje UI podle předaných dat o předpovědi.
+     * @param data Data o počasí ve formátu JSON.
+     */
     private fun updateUIWithForecastData(data: String) {
         try {
             val jsonObj = JSONObject(data)
@@ -180,6 +208,9 @@ class ForecastFragment : Fragment() {
     }
 
 
+    /**
+     * Vrací ikonu počasí na základě kódu stavu.
+     */
     private fun getWeatherIcon(iconCode: String): Int {
         return when (iconCode) {
             "01d", "01n" -> R.drawable.clear_sky
@@ -195,13 +226,18 @@ class ForecastFragment : Fragment() {
         }
     }
 
-
+    /**
+     * Zobrazí chybovou zprávu.
+     */
     private fun showError(message: String) {
         loader.visibility = View.GONE
         errorText.text = message
         errorText.visibility = View.VISIBLE
     }
 
+    /**
+     * Ukončení fragmentu.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         coroutineScope.cancel()
