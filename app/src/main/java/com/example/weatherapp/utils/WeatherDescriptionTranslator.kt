@@ -3,9 +3,14 @@ package com.example.weatherapp.utils
 import android.util.Log
 import java.util.*
 
+/**
+ * Třída `WeatherDescriptionTranslator` slouží k překladu anglických popisů počasí a dat
+ * do češtiny nebo jiných jazyků podle aktuálního nastavení.
+ */
 class WeatherDescriptionTranslator {
 
     companion object {
+        // Mapa překladů anglických popisů počasí do češtiny - weatherFragment
         private val translationMap = mapOf(
             "clear sky" to "Jasná obloha",
             "few clouds" to "Polojasno",
@@ -18,6 +23,7 @@ class WeatherDescriptionTranslator {
             "snow" to "Sněžení",
             "mist" to "Mlhavo",
             "light rain" to "Slabý déšť",
+            "moderate rain" to "Střední déšť",
             "thunderstorm with light rain" to "Bouřka s lehkým deštěm",
             "thunderstorm with rain" to "Bouřka s deštěm",
             "thunderstorm with heavy rain" to "Bouřka se silným deštěm",
@@ -53,15 +59,15 @@ class WeatherDescriptionTranslator {
         )
 
         /**
-         * Překládá anglický popis počasí do češtiny.
+         * Překládá popis počasí podle jazyka uživatele.
          *
-         * @param description Anglický popis počasí
-         * @return Přeložený popis v češtině nebo původní text, pokud překlad neexistuje
+         * @param description Anglický popis počasí.
+         * @param locale Jazykové nastavení (výchozí je aktuální systémový jazyk).
+         * @return Přeložený popis, pokud je dostupný, jinak vrací původní popis.
          */
         fun translate(description: String, locale: Locale = Locale.getDefault()): String {
             // Odstranění mezer na začátku/konce a převedení na malá písmena
-            val normalizedDescription = description.trim().lowercase()
-            Log.e("WeatherDataParser", "locale: $locale.language")
+            val normalizedDescription = description.trim().lowercase() // byla nutná normalizace, protože některé popisy obsahovaly mezery na začátku
             return if (locale.language == "cs") {
                 translationMap[normalizedDescription] ?: description
             } else {
@@ -69,6 +75,12 @@ class WeatherDescriptionTranslator {
             }
         }
 
+        /**
+         * Překládá popisy počasí bez ohledu na nastavení `Locale`.
+         *
+         * @param condition Anglický popis počasí.
+         * @return Přeložený popis, pokud je dostupný, jinak vrací původní popis.
+         */
         fun translateWeatherCondition(condition: String): String {
             val translations = mapOf(
                 "clear sky" to "Jasno",
@@ -82,6 +94,7 @@ class WeatherDescriptionTranslator {
                 "snow" to "Sněžení",
                 "mist" to "Mlha",
                 "light rain" to "Slabý déšť",
+                "moderate rain" to "Střední déšť",
                 "thunderstorm with light rain" to "Bouřka s lehkým deštěm",
                 "thunderstorm with rain" to "Bouřka s deštěm",
                 "thunderstorm with heavy rain" to "Bouřka se silným deštěm",
@@ -119,6 +132,12 @@ class WeatherDescriptionTranslator {
         }
 
 
+        /**
+         * Překládá anglické dny a měsíce na české v datovém formátu.
+         *
+         * @param date Datum ve formátu "EEE, d MMM HH:mm" (např. "Mon, 28 Nov 15:00").
+         * @return Přeložené datum (např. "Po, 28 lis 15:00").
+         */
         fun translateDate(date: String): String {
             // Překlad anglických dnů a měsíců na české
             val dayTranslations = mapOf(
@@ -146,19 +165,17 @@ class WeatherDescriptionTranslator {
                 "Dec" to "pro"
             )
 
+            // Jednodussi je datum rozdelit a prelozit jednotlive casti
             val dateParts = date.split(" ")
             return if (dateParts.size >= 3) {
                 // Předpokládáme formát "EEE, d MMM HH:mm"
                 val day = dayTranslations[dateParts[0]] ?: dateParts[0] // Přeložit den
                 val month = monthTranslations[dateParts[2]] ?: dateParts[2] // Přeložit měsíc
-                "$day, ${dateParts[1]} $month ${dateParts[3]}" // Znovu složit datum
+                "$day, ${dateParts[1]} $month ${dateParts[3]}" // Složit datum
             } else {
                 // Pokud formát neodpovídá, vrátíme původní řetězec
                 date
             }
         }
-
-
-
     }
 }

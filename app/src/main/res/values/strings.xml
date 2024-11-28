@@ -14,6 +14,8 @@
     <string name="cancel">Zrušit</string>
     <string name="change_theme">Změnit motiv</string>
     <string name="theme_changed_to">Motiv byl změněn na %1$s</string>
+    <string name="zelen_motiv">Zelená</string>
+    <string name="fialov_motiv">Fialová</string>
     <string-array name="theme_options">
         <item>Fialový</item>
         <item>Zelený</item>
@@ -63,7 +65,4 @@
     <!-- FORECAST FRAGMENT -->
     <string name="date">Datum</string>
     <string name="condition">Kondice</string>
-    <string name="zelen_motiv">Zelená</string>
-    <string name="fialov_motiv">Fialová</string>
-
 </resources>

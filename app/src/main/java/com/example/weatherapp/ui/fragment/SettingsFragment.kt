@@ -18,6 +18,9 @@ import com.example.weatherapp.R
 import com.example.weatherapp.services.NotificationService
 import java.util.*
 
+/**
+ * Fragment pro zobrazení a nastavení uživatelských preferencí
+ */
 class SettingsFragment : Fragment() {
 
     private lateinit var weatherServiceSwitch: SwitchCompat
@@ -91,11 +94,17 @@ class SettingsFragment : Fragment() {
 
     }
 
+    /**
+     * Uložení zvoleného motivu do SharedPreferences
+     */
     private fun saveThemePreference(theme: String) {
         val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().putString(PREF_THEME_KEY, theme).apply()
     }
 
+    /**
+     * Dialog pro restartování aplikace po změně jazyka
+     */
     private fun showRestartDialog(language: String) {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.restart_required_title))
@@ -108,6 +117,9 @@ class SettingsFragment : Fragment() {
             .show()
     }
 
+    /**
+     * Aplikování zvoleného motivu
+     */
     private fun applyTheme(theme: String) {
         saveThemePreference(theme)
         (requireActivity() as MainActivity).updateThemeForFragments(theme)
@@ -115,6 +127,9 @@ class SettingsFragment : Fragment() {
         Toast.makeText(requireContext(), "Motiv změněn na ${if (theme == THEME_PURPLE) "Fialový" else "Zelený"}", Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * Aktualizace jazyka aplikace
+     */
     private fun updateLocale(language: String) {
         val locale = Locale(language)
         Locale.setDefault(locale)
@@ -128,7 +143,9 @@ class SettingsFragment : Fragment() {
         Log.d("SettingsFragment", "Locale updated to: $language")
     }
 
-
+    /**
+     * Restartování aplikace
+     */
     private fun restartApplication() {
         val intent = Intent(requireContext(), MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -136,6 +153,9 @@ class SettingsFragment : Fragment() {
         startActivity(intent)
     }
 
+    /**
+     * Uložení preference do SharedPreferences - abych nemusel po kazdem spusteni aplikace znovu nastavovat jiz co jsem nastavil yk
+     */
     private fun savePreference(key: String, value: Any) {
         val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
@@ -147,16 +167,25 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    /**
+     * Spuštění notifikační služby
+     */
     private fun startNotificationService() {
         val serviceIntent = Intent(requireContext(), NotificationService::class.java)
         requireContext().startService(serviceIntent)
     }
 
+    /**
+     * Zastavení notifikační služby
+     */
     private fun stopNotificationService() {
         val serviceIntent = Intent(requireContext(), NotificationService::class.java)
         requireContext().stopService(serviceIntent)
     }
 
+    /**
+     * Uložení stavu služby do SharedPreferences
+     */
     private fun saveServiceState(isEnabled: Boolean) {
         val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().putBoolean("service_enabled", isEnabled).apply()
