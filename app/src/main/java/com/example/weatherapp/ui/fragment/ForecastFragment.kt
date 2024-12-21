@@ -174,7 +174,7 @@ class ForecastFragment : Fragment() {
                 val main = forecast.getJSONObject("main")
                 val weather = forecast.getJSONArray("weather").getJSONObject(0)
                 val dateTime = forecast.getLong("dt") * 1000
-                val date = SimpleDateFormat("EEE, d MMM HH:mm", Locale.ENGLISH).format(Date(dateTime))
+                val date = SimpleDateFormat("d MMM HH:mm", Locale.ENGLISH).format(Date(dateTime))
                 val translatedDate = if (SettingsFragment.selectedLanguage == "cs") translateDate(date) else date
 
                 // Přeložení popisu podmínek počasí
