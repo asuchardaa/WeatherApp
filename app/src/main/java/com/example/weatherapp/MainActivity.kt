@@ -31,12 +31,8 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
     override fun attachBaseContext(newBase: Context) {
         // Inicializace `Locale` z preferencí
         val sharedPreferences = newBase.getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
-        val language = sharedPreferences.getString("selected_language", "Čeština")
-        val locale = when (language) {
-            "Čeština" -> Locale("cs")
-            "English" -> Locale("en")
-            else -> Locale.getDefault()
-        }
+        val language = sharedPreferences.getString(SettingsFragment.PREF_LANGUAGE_KEY, Locale.getDefault().language)
+        val locale = Locale(language ?: Locale.getDefault().language)
 
         // Aplikace nového nastavení jazyka
         val config = Configuration(newBase.resources.configuration)
@@ -88,7 +84,7 @@ class MainActivity : AppCompatActivity(), OnCitySelectedListener, OnFavoritesUpd
             }
         }
 
-        // defaultní fragment při prvním načtení, jinak to zůstane na prvním indexovaném fragmentu, a pak je problem s oznacovanim v dolni navigaci
+        // Defaultní fragment při prvním načtení
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.mainContainer, WeatherFragment())

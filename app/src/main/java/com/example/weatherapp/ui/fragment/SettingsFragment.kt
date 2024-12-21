@@ -35,6 +35,7 @@ class SettingsFragment : Fragment() {
         const val THEME_PURPLE = "gradient_purple_bg"
         const val THEME_GREEN = "gradient_green_bg"
         const val PREF_THEME_KEY = "selected_theme"
+        const val PREF_LANGUAGE_KEY = "selected_language"
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -52,6 +53,13 @@ class SettingsFragment : Fragment() {
         greenThemeButton = view.findViewById(R.id.greenThemeButton)
 
         val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+
+        // Načtení uloženého jazyka
+        val savedLanguage = sharedPreferences.getString(PREF_LANGUAGE_KEY, Locale.getDefault().language)
+        if (savedLanguage != null && savedLanguage != Locale.getDefault().language) {
+            updateLocale(savedLanguage)
+        }
+
         val currentTheme = sharedPreferences.getString(PREF_THEME_KEY, THEME_PURPLE)
         val backgroundResource = if (currentTheme == THEME_PURPLE) R.drawable.gradient_purple_bg else R.drawable.gradient_green_bg
         view.setBackgroundResource(backgroundResource)
@@ -66,12 +74,6 @@ class SettingsFragment : Fragment() {
                 stopNotificationService()
             }
             saveServiceState(isChecked)
-        }
-
-        // Povolení/zakázání animací
-        animationsSwitch.isChecked = sharedPreferences.getBoolean("animations_enabled", true)
-        animationsSwitch.setOnCheckedChangeListener { _, isChecked ->
-            savePreference("animations_enabled", isChecked)
         }
 
         // Výběr jazyka – Čeština
@@ -100,6 +102,14 @@ class SettingsFragment : Fragment() {
     private fun saveThemePreference(theme: String) {
         val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().putString(PREF_THEME_KEY, theme).apply()
+    }
+
+    /**
+     * Uložení preference jazyka do SharedPreferences
+     */
+    private fun saveLanguagePreference(language: String) {
+        val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putString(PREF_LANGUAGE_KEY, language).apply()
     }
 
     /**
@@ -139,7 +149,7 @@ class SettingsFragment : Fragment() {
         config.setLocale(locale)
         requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
 
-        savePreference("selected_language", language)
+        saveLanguagePreference(language)
         Log.d("SettingsFragment", "Locale updated to: $language")
     }
 
@@ -151,20 +161,6 @@ class SettingsFragment : Fragment() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         requireActivity().finish()
         startActivity(intent)
-    }
-
-    /**
-     * Uložení preference do SharedPreferences - abych nemusel po kazdem spusteni aplikace znovu nastavovat jiz co jsem nastavil yk
-     */
-    private fun savePreference(key: String, value: Any) {
-        val sharedPreferences = requireActivity().getSharedPreferences("SettingsPrefs", Context.MODE_PRIVATE)
-        with(sharedPreferences.edit()) {
-            when (value) {
-                is Boolean -> putBoolean(key, value)
-                is String -> putString(key, value)
-            }
-            apply()
-        }
     }
 
     /**

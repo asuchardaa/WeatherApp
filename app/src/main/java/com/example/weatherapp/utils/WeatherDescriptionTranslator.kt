@@ -1,6 +1,5 @@
 package com.example.weatherapp.utils
 
-import android.util.Log
 import java.util.*
 
 /**
@@ -131,6 +130,24 @@ class WeatherDescriptionTranslator {
             return translations[condition.lowercase()] ?: condition.capitalize(Locale.getDefault())
         }
 
+        /**
+         * Vrátí číslo měsíce pro daný formát datumu.
+         *
+         * @param date Datum ve formátu "EEE, d MMM HH:mm" (např. "Mon, 28 Nov 15:00").
+         * @return Řetězec s číslem měsíce (např. "12" pro prosinec).
+         */
+        fun getMonthNumber(date: String): String {
+            return try {
+                val formatter = java.text.SimpleDateFormat("EEE, d MMM HH:mm", Locale.ENGLISH)
+                val parsedDate = formatter.parse(date)
+                val calendar = Calendar.getInstance()
+                calendar.time = parsedDate
+                (calendar.get(Calendar.MONTH) + 1).toString() // +1, protože Calendar.MONTH začíná od 0
+            } catch (e: Exception) {
+                "Neznámý"
+            }
+        }
+
 
         /**
          * Překládá anglické dny a měsíce na české v datovém formátu.
@@ -139,7 +156,6 @@ class WeatherDescriptionTranslator {
          * @return Přeložené datum (např. "Po, 28 lis 15:00").
          */
         fun translateDate(date: String): String {
-            // Překlad anglických dnů a měsíců na české
             val dayTranslations = mapOf(
                 "Mon" to "Po",
                 "Tue" to "Út",
@@ -151,29 +167,25 @@ class WeatherDescriptionTranslator {
             )
 
             val monthTranslations = mapOf(
-                "Jan" to "led",
-                "Feb" to "úno",
-                "Mar" to "bře",
-                "Apr" to "dub",
-                "May" to "kvě",
-                "Jun" to "čvn",
-                "Jul" to "čvc",
-                "Aug" to "srp",
-                "Sep" to "zář",
-                "Oct" to "říj",
-                "Nov" to "lis",
-                "Dec" to "pro"
+                "Jan" to "1",
+                "Feb" to "2",
+                "Mar" to "3",
+                "Apr" to "4",
+                "May" to "5",
+                "Jun" to "6",
+                "Jul" to "7",
+                "Aug" to "8",
+                "Sep" to "9",
+                "Oct" to "10",
+                "Nov" to "11",
+                "Dec" to "12"
             )
 
-            // Jednodussi je datum rozdelit a prelozit jednotlive casti
             val dateParts = date.split(" ")
             return if (dateParts.size >= 3) {
-                // Předpokládáme formát "EEE, d MMM HH:mm"
-                val day = dayTranslations[dateParts[0]] ?: dateParts[0] // Přeložit den
-                val month = monthTranslations[dateParts[2]] ?: dateParts[2] // Přeložit měsíc
-                "$day, ${dateParts[1]} $month ${dateParts[3]}" // Složit datum
+                val month = monthTranslations[dateParts[1]] ?: dateParts[1]
+                "${dateParts[0]}.$month ${dateParts[2]}"
             } else {
-                // Pokud formát neodpovídá, vrátíme původní řetězec
                 date
             }
         }
