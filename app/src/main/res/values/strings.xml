@@ -65,4 +65,9 @@
     <!-- FORECAST FRAGMENT -->
     <string name="date">Datum</string>
     <string name="condition">Kondice</string>
+
+    <!-- NAVIGATION -->
+    <string name="forecast">Předpověď</string>
+    <string name="weather">Počasí</string>
+    <string name="settings">Nastavení</string>
 </resources>
