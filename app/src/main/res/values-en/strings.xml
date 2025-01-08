@@ -67,4 +67,8 @@
     <!-- FORECAST FRAGMENT -->
     <string name="date">Date</string>
     <string name="condition">Condition</string>
+    <!-- NAVIGATION -->
+    <string name="forecast">Forecast</string>
+    <string name="weather">Weather</string>
+    <string name="settings">Settings</string>
 </resources>
